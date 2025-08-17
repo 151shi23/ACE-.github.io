@@ -401,7 +401,7 @@
         }
         
         .pricing-price {
-            font-size: 3.2rem;
+            font-size: 1.8rem;
             font-weight: 800;
             color: var(--darker);
         }
@@ -509,6 +509,100 @@
             font-weight: 700;
         }
         
+        /* 演示视频区域 */
+        .demo-video {
+            padding: 100px 0;
+            background: radial-gradient(circle at center, rgba(15, 20, 35, 0.8) 0%, transparent 70%);
+            position: relative;
+            text-align: center;
+        }
+        
+        .demo-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .video-container {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+            margin: 40px auto;
+            border: 2px solid rgba(0, 243, 255, 0.3);
+        }
+        
+        .video-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 18px;
+        }
+        
+        .video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(138, 43, 226, 0.1), rgba(0, 243, 255, 0.1));
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .video-overlay:hover {
+            opacity: 1;
+        }
+        
+        .play-btn {
+            width: 80px;
+            height: 80px;
+            background: rgba(0, 243, 255, 0.7);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .play-btn:hover {
+            transform: scale(1.1);
+            background: rgba(0, 243, 255, 0.9);
+        }
+        
+        .play-btn i {
+            color: var(--darker);
+            font-size: 40px;
+            margin-left: 5px;
+        }
+        
+        .video-info {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .video-info-item {
+            background: rgba(0, 243, 255, 0.1);
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
         /* 下载区域 */
         .download {
             padding: 100px 0;
@@ -569,8 +663,8 @@
             background: rgba(255, 0, 0, 0.05);
             border-left: 3px solid #ff4655;
             font-size: 0.9rem;
-            text-align: left;
-            border-radius: 0 10px 10px 0;
+            text-align: center;
+            border-radius: 10px;
             color: #d0d0e0;
         }
         
@@ -706,11 +800,11 @@
             }
             
             .hero h1 {
-                font-size: 2.8rem;
+                font-size: 2.5rem;
             }
             
             .hero h2 {
-                font-size: 1.4rem;
+                font-size: 1.3rem;
             }
             
             .section-title h2 {
@@ -719,6 +813,14 @@
             
             .download-box {
                 padding: 40px 20px;
+            }
+            
+            .pricing-title {
+                font-size: 1.6rem;
+            }
+            
+            .pricing-price {
+                font-size: 1.6rem;
             }
         }
     </style>
@@ -736,7 +838,7 @@
                     <ul>
                         <li><a href="#features">核心功能</a></li>
                         <li><a href="#pricing">付费方案</a></li>
-                        <li><a href="#anti-vtd">反制VTD</a></li>
+                        <li><a href="#demo">演示视频</a></li>
                         <li><a href="#download">下载</a></li>
                     </ul>
                 </nav>
@@ -852,7 +954,7 @@
                             <li><i class="fas fa-check-circle"></i> 基础辅助功能</li>
                             <li><i class="fas fa-check-circle"></i> 每周更新</li>
                         </ul>
-                        <a href="#" class="pricing-btn">立即购买</a>
+                        <a href="https://qm.qq.com/q/kpYh9TMqaY" class="pricing-btn">立即购买</a>
                     </div>
                 </div>
                 
@@ -870,7 +972,7 @@
                             <li><i class="fas fa-check-circle"></i> 每日更新</li>
                             <li><i class="fas fa-check-circle"></i> 优先技术支持</li>
                         </ul>
-                        <a href="#" class="pricing-btn">立即购买</a>
+                        <a href="https://qm.qq.com/q/kpYh9TMqaY" class="pricing-btn">立即购买</a>
                     </div>
                 </div>
                 
@@ -889,7 +991,7 @@
                             <li><i class="fas fa-check-circle"></i> VIP技术支持</li>
                             <li><i class="fas fa-check-circle"></i> 终身免费更新</li>
                         </ul>
-                        <a href="#" class="pricing-btn">立即购买</a>
+                        <a href="https://qm.qq.com/q/kpYh9TMqaY" class="pricing-btn">立即购买</a>
                     </div>
                 </div>
             </div>
@@ -902,7 +1004,7 @@
             <div class="anti-vtd-content">
                 <h2>独家VTD反制技术</h2>
                 <p>团队<span class="highlight">深入研究腾讯VTD检测系统</span>，独家反制技术，能够有效规避VTD的各种检测手段，包括但不限于行为分析、内存扫描、硬件指纹检测等，确保您的账号安全无忧。</p>
-                <p><span class="highlight">市场上唯一真正能对抗VTD的解决方案</span>，。无论腾讯如何更新反作弊系统，我们都能在第一时间提供更新，确保您的游戏体验不受影响。</p>
+                <p><span class="highlight">市场上唯一真正能对抗VTD的解决方案</span>，无论腾讯如何更新反作弊系统，我们都能在第一时间提供更新，确保您的游戏体验不受影响。</p>
                 
                 <div class="hero-buttons">
                     <a href="#download" class="btn">
@@ -911,6 +1013,45 @@
                     <a href="#pricing" class="btn btn-outline">
                         <i class="fas fa-crown"></i> 升级高级版
                     </a>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 演示视频区域 -->
+    <section class="demo-video" id="demo">
+        <div class="container">
+            <div class="section-title">
+                <h2>功能演示视频</h2>
+                <p>观看ACE冻结者的实际使用效果和强大功能</p>
+            </div>
+            
+            <div class="demo-container">
+                <div class="video-container">
+                    <video poster="https://images.unsplash.com/photo-1550745165-9bc0b252726f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" controls>
+                        <source src="ACE-github.io/yanshi.mp4" type="video/mp4">
+                        您的浏览器不支持视频播放
+                    </video>
+                    <div class="video-overlay">
+                        <div class="play-btn">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-info">
+                    <div class="video-info-item">
+                        <i class="fas fa-desktop"></i> 支持Windows 10/11
+                    </div>
+                    <div class="video-info-item">
+                        <i class="fas fa-microchip"></i> 64位系统
+                    </div>
+                    <div class="video-info-item">
+                        <i class="fas fa-shield-alt"></i> 100%防封
+                    </div>
+                    <div class="video-info-item">
+                        <i class="fas fa-gamepad"></i> 支持多款游戏
+                    </div>
                 </div>
             </div>
         </div>
@@ -927,14 +1068,14 @@
             <div class="download-box">
                 <div class="section-title" style="margin-bottom: 40px;">
                     <h2 style="font-size: 2.5rem;">v3.5.2 | 最新版本</h2>
-                    <p>稳定| 防封</p>
+                    <p>稳定 | 防封</p>
                 </div>
                 
                 <div class="hero-buttons">
-                    <a href="[在此填入下载链接]" class="btn">
+                    <a href="#" class="btn">
                         <i class="fab fa-windows"></i> Windows 下载
                     </a>
-                    <a href="[在此填入下载链接]" class="btn btn-outline">
+                    <a href="#" class="btn btn-outline">
                         <i class="fab fa-apple"></i> 便携版 下载
                     </a>
                 </div>
@@ -1019,6 +1160,37 @@
                         behavior: 'smooth'
                     });
                 });
+            });
+            
+            // 视频播放按钮
+            const video = document.querySelector('video');
+            const playBtn = document.querySelector('.play-btn');
+            
+            playBtn.addEventListener('click', function() {
+                if (video.paused) {
+                    video.play();
+                    document.querySelector('.video-overlay').style.opacity = 0;
+                } else {
+                    video.pause();
+                }
+            });
+            
+            video.addEventListener('click', function() {
+                if (video.paused) {
+                    video.play();
+                    document.querySelector('.video-overlay').style.opacity = 0;
+                } else {
+                    video.pause();
+                    document.querySelector('.video-overlay').style.opacity = 1;
+                }
+            });
+            
+            video.addEventListener('play', function() {
+                document.querySelector('.video-overlay').style.opacity = 0;
+            });
+            
+            video.addEventListener('pause', function() {
+                document.querySelector('.video-overlay').style.opacity = 1;
             });
         });
     </script>
