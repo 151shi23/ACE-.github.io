@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACE冻结者 - 专业游戏辅助工具</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        :root {
+            --primary: #00f3ff;
+            --primary-dark: #00c4cc;
+            --secondary: #8a2be2;
+            --dark: #0a0e17;
+            --darker: #070a12;
+            --light: #f0f8ff;
+            --card-bg: rgba(20, 25, 40, 0.7);
+            --card-border: rgba(0, 243, 255, 0.15);
+        }
+        
+        body {
+            background: radial-gradient(circle at top right, #0a0e17 0%, #070a12 70%);
+            color: var(--light);
+            line-height: 1.7;
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+        }
+        
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(0, 243, 255, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(138, 43, 226, 0.05) 0%, transparent 40%);
+            z-index: -1;
+        }
+        
+        /* 头部样式 */
+        header {
+            background: rgba(10, 14, 23, 0.85);
+            backdrop-filter: blur(10px);
+            padding: 15px 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid var(--card-border);
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo-icon {
+            font-size: 28px;
+            color: var(--primary);
+            animation: pulse 2s infinite;
+        }
+        
+        .logo-text {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 1px;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 25px;
+        }
+        
+        nav ul li a {
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            padding: 8px 0;
+            position: relative;
+            opacity: 0.85;
+            transition: all 0.3s ease;
+        }
+        
+        nav ul li a:hover {
+            opacity: 1;
+            color: var(--primary);
+        }
+        
+        nav ul li a::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+        
+        nav ul li a:hover::after {
+            width: 100%;
+        }
+        
+        /* 英雄区域 */
+        .hero {
+            padding: 180px 0 100px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .hero-content {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .hero h1 {
+            font-size: 3.8rem;
+            margin-bottom: 20px;
+            line-height: 1.1;
+            font-weight: 800;
+            background: linear-gradient(to right, var(--primary), var(--light));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .hero h2 {
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+            font-weight: 400;
+            color: #a0b0c0;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .hero-buttons {
+            margin-top: 40px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--darker);
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(0, 243, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        .btn::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+        
+        .btn:hover::before {
+            opacity: 1;
+        }
+        
+        .btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 243, 255, 0.5);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            box-shadow: none;
+        }
+        
+        .btn-outline:hover {
+            background: rgba(0, 243, 255, 0.1);
+        }
+        
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            margin-top: 70px;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+        
+        .stat-box {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            min-width: 220px;
+            transition: all 0.4s ease;
+        }
+        
+        .stat-box:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(0, 243, 255, 0.2);
+            border-color: var(--primary);
+        }
+        
+        .stat-value {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 1.1rem;
+            color: #a0b0c0;
+        }
+        
+        /* 功能区域 */
+        .features {
+            padding: 100px 0;
+            position: relative;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 70px;
+            position: relative;
+        }
+        
+        .section-title h2 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            background: linear-gradient(to right, var(--primary), var(--light));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .section-title p {
+            font-size: 1.2rem;
+            color: #a0b0c0;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+        }
+        
+        .feature-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            transition: all 0.4s ease;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s ease;
+        }
+        
+        .feature-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        }
+        
+        .feature-icon {
+            font-size: 50px;
+            margin-bottom: 25px;
+            background: linear-gradient(to bottom, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .feature-title {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: var(--light);
+        }
+        
+        .feature-desc {
+            color: #a0b0c0;
+            font-size: 1.1rem;
+        }
+        
+        /* 付费方案 */
+        .pricing {
+            padding: 100px 0;
+            position: relative;
+            background: radial-gradient(circle at center, rgba(15, 20, 35, 0.5) 0%, transparent 70%);
+        }
+        
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+        
+        .pricing-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+        
+        .pricing-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            border-color: var(--primary);
+        }
+        
+        .pricing-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        .popular .pricing-header {
+            background: linear-gradient(135deg, #ff00aa, #8a2be2);
+        }
+        
+        .pricing-title {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: var(--darker);
+            font-weight: 800;
+        }
+        
+        .pricing-price {
+            font-size: 3.2rem;
+            font-weight: 800;
+            color: var(--darker);
+        }
+        
+        .pricing-period {
+            font-size: 1.1rem;
+            color: rgba(10, 14, 23, 0.8);
+            font-weight: 600;
+        }
+        
+        .pricing-body {
+            padding: 30px;
+        }
+        
+        .pricing-features {
+            list-style: none;
+            margin-bottom: 40px;
+        }
+        
+        .pricing-features li {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            color: #a0b0c0;
+        }
+        
+        .pricing-features li:last-child {
+            border-bottom: none;
+        }
+        
+        .pricing-features li i {
+            color: var(--primary);
+            margin-right: 10px;
+            font-size: 14px;
+        }
+        
+        .pricing-btn {
+            display: block;
+            width: 100%;
+            text-align: center;
+            background: rgba(0, 243, 255, 0.1);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 14px;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .pricing-btn:hover {
+            background: var(--primary);
+            color: var(--darker);
+        }
+        
+        /* 反制VTD区域 */
+        .anti-vtd {
+            padding: 120px 0;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+        
+        .anti-vtd::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 80% 20%, rgba(0, 243, 255, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 20% 80%, rgba(138, 43, 226, 0.05) 0%, transparent 40%);
+            z-index: -1;
+        }
+        
+        .anti-vtd-content {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .anti-vtd h2 {
+            font-size: 3rem;
+            margin-bottom: 30px;
+            background: linear-gradient(to right, var(--primary), var(--light));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .anti-vtd p {
+            font-size: 1.2rem;
+            margin-bottom: 25px;
+            color: #a0b0c0;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .anti-vtd .highlight {
+            color: var(--primary);
+            font-weight: 700;
+        }
+        
+        /* 下载区域 */
+        .download {
+            padding: 100px 0;
+            text-align: center;
+            position: relative;
+        }
+        
+        .download-box {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 60px 40px;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .download-box::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 243, 255, 0.05) 0%, transparent 70%);
+            z-index: -1;
+            animation: rotate 20s linear infinite;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .download-info {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .info-item {
+            background: rgba(15, 20, 35, 0.7);
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            color: #a0b0c0;
+            border: 1px solid rgba(0, 243, 255, 0.1);
+        }
+        
+        .disclaimer {
+            max-width: 700px;
+            margin: 40px auto 0;
+            padding: 20px;
+            background: rgba(255, 0, 0, 0.05);
+            border-left: 3px solid #ff4655;
+            font-size: 0.9rem;
+            text-align: left;
+            border-radius: 0 10px 10px 0;
+            color: #d0d0e0;
+        }
+        
+        /* 页脚 */
+        footer {
+            background: rgba(7, 10, 18, 0.95);
+            padding: 60px 0 30px;
+            text-align: center;
+            border-top: 1px solid rgba(0, 243, 255, 0.1);
+        }
+        
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            gap: 25px;
+        }
+        
+        .footer-links a {
+            color: #a0b0c0;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-size: 15px;
+        }
+        
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+        
+        .qq-group {
+            margin: 30px 0;
+        }
+        
+        .copyright {
+            margin-top: 30px;
+            color: #708090;
+            font-size: 0.9rem;
+            max-width: 800px;
+        }
+        
+        /* 弹窗 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: var(--card-bg);
+            border: 1px solid var(--primary);
+            border-radius: 20px;
+            padding: 50px 40px;
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+            position: relative;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 50px rgba(0, 243, 255, 0.2);
+            animation: modalAppear 0.5s ease;
+        }
+        
+        @keyframes modalAppear {
+            from { opacity: 0; transform: translateY(-50px) scale(0.9); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        
+        .modal h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+        
+        .modal p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            color: #a0b0c0;
+            line-height: 1.8;
+        }
+        
+        .modal .btn {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            padding: 15px 40px;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 1.8rem;
+            color: #a0b0c0;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        
+        .close-modal:hover {
+            color: var(--primary);
+        }
+        
+        /* 动画效果 */
+        @keyframes pulse {
+            0% { text-shadow: 0 0 5px rgba(0, 243, 255, 0.5); }
+            50% { text-shadow: 0 0 20px rgba(0, 243, 255, 0.8); }
+            100% { text-shadow: 0 0 5px rgba(0, 243, 255, 0.5); }
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+            
+            nav ul {
+                margin-top: 15px;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            .hero h1 {
+                font-size: 2.8rem;
+            }
+            
+            .hero h2 {
+                font-size: 1.4rem;
+            }
+            
+            .section-title h2 {
+                font-size: 2.2rem;
+            }
+            
+            .download-box {
+                padding: 40px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon"><i class="fas fa-shield-alt"></i></div>
+                    <div class="logo-text">ACE冻结者</div>
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="#features">核心功能</a></li>
+                        <li><a href="#pricing">付费方案</a></li>
+                        <li><a href="#anti-vtd">反制VTD</a></li>
+                        <li><a href="#download">下载</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+    
+    <!-- 英雄区域 -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>终极ACE冻结解决方案</h1>
+                <h2>禁止ACE检查 · 100%防封 · 功能最全 · 独家反制VTD技术</h2>
+                
+                <div class="hero-buttons">
+                    <a href="#download" class="btn">
+                        <i class="fas fa-download"></i> 立即下载
+                    </a>
+                    <a href="#pricing" class="btn btn-outline">
+                        <i class="fas fa-crown"></i> 升级高级版
+                    </a>
+                </div>
+                
+                <div class="hero-stats">
+                    <div class="stat-box">
+                        <div class="stat-value">99.9%</div>
+                        <div class="stat-label">防封成功率</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value">5+</div>
+                        <div class="stat-label">支持游戏数量</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value">24/7</div>
+                        <div class="stat-label">技术支持</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value">0.01%</div>
+                        <div class="stat-label">崩溃率</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 核心功能 -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-title">
+                <h2>核心功能</h2>
+                <p>专为腾讯游戏打造的高级辅助解决方案，提供无与伦比的稳定性和安全性</p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-lock"></i></div>
+                    <h3 class="feature-title">ACE冻结技术</h3>
+                    <p class="feature-desc">彻底冻结ACE反作弊系统，使其无法进行任何检测和扫描操作，保护您的账号安全。</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-shield-virus"></i></div>
+                    <h3 class="feature-title">VTD反制技术</h3>
+                    <p class="feature-desc">独家技术反制腾讯VTD检测系统，有效规避各种行为检测和内存扫描。</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-bolt"></i></div>
+                    <h3 class="feature-title">超强稳定性</h3>
+                    <p class="feature-desc">经过数千小时高强度测试，确保在各种系统环境下稳定运行，杜绝游戏崩溃。</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-gamepad"></i></div>
+                    <h3 class="feature-title">多游戏支持</h3>
+                    <p class="feature-desc">支持无畏契约、三角洲行动等5+腾讯热门游戏，一工具解决所有需求。</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-user-secret"></i></div>
+                    <h3 class="feature-title">隐形模式</h3>
+                    <p class="feature-desc">完全隐藏辅助进程，不会被任何反作弊系统检测到异常活动痕迹。</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-sync-alt"></i></div>
+                    <h3 class="feature-title">智能更新</h3>
+                    <p class="feature-desc">实时更新对抗最新反作弊措施，确保功能持续有效，永不过时。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 付费方案 -->
+    <section class="pricing" id="pricing">
+        <div class="container">
+            <div class="section-title">
+                <h2>付费方案</h2>
+                <p>选择适合您的套餐，体验顶级游戏辅助功能</p>
+            </div>
+            
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h3 class="pricing-title">基础版</h3>
+                        <div class="pricing-price">¥98 <span class="pricing-period">/月</span></div>
+                    </div>
+                    <div class="pricing-body">
+                        <ul class="pricing-features">
+                            <li><i class="fas fa-check-circle"></i> ACE冻结基础功能</li>
+                            <li><i class="fas fa-check-circle"></i> VTD基础反制</li>
+                            <li><i class="fas fa-check-circle"></i> 支持2款游戏</li>
+                            <li><i class="fas fa-check-circle"></i> 基础辅助功能</li>
+                            <li><i class="fas fa-check-circle"></i> 每周更新</li>
+                        </ul>
+                        <a href="#" class="pricing-btn">立即购买</a>
+                    </div>
+                </div>
+                
+                <div class="pricing-card popular">
+                    <div class="pricing-header">
+                        <h3 class="pricing-title">高级版</h3>
+                        <div class="pricing-price">¥198 <span class="pricing-period">/月</span></div>
+                    </div>
+                    <div class="pricing-body">
+                        <ul class="pricing-features">
+                            <li><i class="fas fa-check-circle"></i> 完整ACE冻结功能</li>
+                            <li><i class="fas fa-check-circle"></i> VTD高级反制</li>
+                            <li><i class="fas fa-check-circle"></i> 支持5+款游戏</li>
+                            <li><i class="fas fa-check-circle"></i> 完整辅助功能</li>
+                            <li><i class="fas fa-check-circle"></i> 每日更新</li>
+                            <li><i class="fas fa-check-circle"></i> 优先技术支持</li>
+                        </ul>
+                        <a href="#" class="pricing-btn">立即购买</a>
+                    </div>
+                </div>
+                
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h3 class="pricing-title">终身版</h3>
+                        <div class="pricing-price">¥888 <span class="pricing-period">一次性</span></div>
+                    </div>
+                    <div class="pricing-body">
+                        <ul class="pricing-features">
+                            <li><i class="fas fa-check-circle"></i> 完整ACE冻结功能</li>
+                            <li><i class="fas fa-check-circle"></i> VTD终极反制</li>
+                            <li><i class="fas fa-check-circle"></i> 支持所有游戏</li>
+                            <li><i class="fas fa-check-circle"></i> 所有辅助功能</li>
+                            <li><i class="fas fa-check-circle"></i> 实时更新</li>
+                            <li><i class="fas fa-check-circle"></i> VIP技术支持</li>
+                            <li><i class="fas fa-check-circle"></i> 终身免费更新</li>
+                        </ul>
+                        <a href="#" class="pricing-btn">立即购买</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 反制VTD -->
+    <section class="anti-vtd" id="anti-vtd">
+        <div class="container">
+            <div class="anti-vtd-content">
+                <h2>独家VTD反制技术</h2>
+                <p>我们的工程师团队<span class="highlight">深入研究腾讯VTD检测系统</span>，开发出独家反制技术，能够有效规避VTD的各种检测手段，包括但不限于行为分析、内存扫描、硬件指纹检测等，确保您的账号安全无忧。</p>
+                <p><span class="highlight">市场上唯一真正能对抗VTD的解决方案</span>，经过数千用户验证，防封率高达99.9%。无论腾讯如何更新反作弊系统，我们都能在第一时间提供更新，确保您的游戏体验不受影响。</p>
+                
+                <div class="hero-buttons">
+                    <a href="#download" class="btn">
+                        <i class="fas fa-download"></i> 下载体验
+                    </a>
+                    <a href="#pricing" class="btn btn-outline">
+                        <i class="fas fa-crown"></i> 升级高级版
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 下载区域 -->
+    <section class="download" id="download">
+        <div class="container">
+            <div class="section-title">
+                <h2>下载ACE冻结者</h2>
+                <p>立即体验顶级游戏辅助工具的强大功能</p>
+            </div>
+            
+            <div class="download-box">
+                <div class="section-title" style="margin-bottom: 40px;">
+                    <h2 style="font-size: 2.5rem;">v3.5.2 | 最新版本</h2>
+                    <p>更新日期：2023-11-15 | 大小：32.5MB</p>
+                </div>
+                
+                <div class="hero-buttons">
+                    <a href="[在此填入下载链接]" class="btn">
+                        <i class="fab fa-windows"></i> Windows 下载
+                    </a>
+                    <a href="[在此填入下载链接]" class="btn btn-outline">
+                        <i class="fab fa-apple"></i> MacOS 下载
+                    </a>
+                </div>
+                
+                <div class="download-info">
+                    <div class="info-item">支持 Windows 10/11</div>
+                    <div class="info-item">64位系统</div>
+                    <div class="info-item">无需安装</div>
+                    <div class="info-item">一键使用</div>
+                </div>
+                
+                <div class="disclaimer">
+                    <strong>免责声明：</strong> 本软件仅供学习和研究使用，请勿用于非法用途。使用本软件产生的任何后果由用户自行承担，与开发者无关。我们不对因使用本软件导致的账号封禁负责。
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 页脚 -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-links">
+                    <a href="#">使用教程</a>
+                    <a href="#">常见问题</a>
+                    <a href="#">更新日志</a>
+                    <a href="#">联系我们</a>
+                    <a href="#">用户协议</a>
+                    <a href="#">隐私政策</a>
+                </div>
+                
+                <div class="qq-group">
+                    <a href="[在此填入QQ群链接]" class="btn">
+                        <i class="fab fa-qq"></i> 加入QQ群获取支持
+                    </a>
+                </div>
+                
+                <div class="copyright">
+                    © 2023 ACE冻结者 - 专业游戏辅助工具. 保留所有权利。本网站内容仅为模拟，不提供实际下载。
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- 弹窗 -->
+    <div class="modal" id="promoModal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeModal">&times;</span>
+            <h2>限时特别活动！</h2>
+            <p><i class="fas fa-exclamation-circle" style="color: var(--primary); margin-right: 10px;"></i>立即加入官方QQ群，即可<span style="color: var(--primary); font-weight: 700;">限时体验所有档位辅助功能</span>！</p>
+            <p>活动仅剩最后 <span style="color: var(--secondary); font-weight: 700;">48小时</span>，机会难得，立即加入！</p>
+            <a href="[在此填入QQ群链接]" class="btn">
+                <i class="fab fa-qq"></i> 立即加入QQ群
+            </a>
+        </div>
+    </div>
+    
+    <script>
+        // 页面加载完成后显示弹窗
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                document.getElementById('promoModal').style.display = 'flex';
+            }, 2000);
+            
+            // 关闭弹窗
+            document.getElementById('closeModal').addEventListener('click', function() {
+                document.getElementById('promoModal').style.display = 'none';
+            });
+            
+            // 点击弹窗外部关闭
+            window.addEventListener('click', function(event) {
+                if (event.target === document.getElementById('promoModal')) {
+                    document.getElementById('promoModal').style.display = 'none';
+                }
+            });
+            
+            // 平滑滚动
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
