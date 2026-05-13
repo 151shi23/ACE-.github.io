@@ -2,183 +2,151 @@
   'use strict';
 
   var currentPage = 0;
-  var totalPages = 6;
   var isTransitioning = false;
   var currentLang = 'zh';
-  var pinnedTabs = {};
-  var tabOrder = [0, 1, 2, 3, 4, 5];
+  var currentFeature = 0;
+  var currentPlugin = 0;
+  var currentAiScene = 'summarize';
+  var aiSceneTimer = null;
 
-  var tabData = [
-    { id: 0, title: { zh: '首页', en: 'Home' }, url: 'drift://home', color: '#4FC3F7' },
-    { id: 1, title: { zh: '特性', en: 'Features' }, url: 'drift://features', color: '#4FC3F7' },
-    { id: 2, title: { zh: 'AI', en: 'AI' }, url: 'drift://ai', color: '#4FC3F7' },
-    { id: 3, title: { zh: '插件', en: 'Plugins' }, url: 'drift://plugins', color: '#FF6D00' },
-    { id: 4, title: { zh: '下载', en: 'Download' }, url: 'drift://download', color: '#FF6D00' },
-    { id: 5, title: { zh: '更新', en: 'Changelog' }, url: 'drift://changelog', color: '#4FC3F7' }
+  var pageList = [
+    { id: 0, title: { zh: '首页', en: 'Home' }, url: 'drift://home' },
+    { id: 1, title: { zh: '海报', en: 'Poster' }, url: 'drift://poster' },
+    { id: 2, title: { zh: '特性', en: 'Features' }, url: 'drift://features' },
+    { id: 3, title: { zh: 'AI', en: 'AI' }, url: 'drift://ai' },
+    { id: 4, title: { zh: '插件', en: 'Plugins' }, url: 'drift://plugins' },
+    { id: 5, title: { zh: '下载', en: 'Download' }, url: 'drift://download' },
+    { id: 6, title: { zh: '更新', en: 'Changelog' }, url: 'drift://changelog' }
   ];
 
   var i18n = {
     zh: {
       'lang.toggle': 'EN',
-      'hero.badge': 'v2.33 · Windows',
       'hero.subtitle': 'AI 驱动的新一代桌面浏览器',
       'hero.download': '下载 Drift',
       'hero.github': 'GitHub',
-      'features.title': '核心特性',
-      'features.desc': '为现代浏览而生的全能工具',
-      'features.hint': '拖拽旋转球体 · 点击图标查看详情',
+      'poster.placeholder': '放置海报图片到 poster/ 目录',
+      'poster.title': '重新定义浏览',
+      'poster.desc': 'Drift 不仅仅是一个浏览器，它是你数字世界的智能伙伴。',
+      'features.ai.title': 'AI 集成',
+      'features.ai.desc': '内置 AI Chat 与 AI Agent，支持多模型配置，智能对话与自动化操作',
+      'features.plugin.title': '插件系统',
+      'features.plugin.desc': '侧载插件架构，无需重新打包即可扩展浏览器功能',
+      'features.cloud.title': '云盘',
+      'features.cloud.desc': '内置云存储，文件上传下载、在线预览、全局搜索',
+      'features.perf.title': '性能优化',
+      'features.perf.desc': '自适应性能调节器，智能冻结后台标签页，内存占用更少',
+      'features.tabs.title': '标签管理',
+      'features.tabs.desc': '标签分组、垂直标签栏、分屏视图，多标签井然有序',
+      'features.adblock.title': '广告拦截',
+      'features.adblock.desc': '内置广告和追踪器过滤，清爽浏览，隐私保护',
       'ai.title': 'AI 驱动',
       'ai.desc': '不只是浏览器，更是你的智能助手',
-      'ai.chatTitle': 'AI Chat',
-      'ai.userMsg': '帮我总结这个页面的要点',
-      'ai.aiMsg': '这个页面主要讨论了三个核心主题：1. 现代浏览器架构演进 2. AI 与浏览器的融合趋势 3. 用户隐私保护的新方案',
-      'ai.inputPlaceholder': '输入消息...',
-      'ai.chat.title': 'AI Chat',
-      'ai.chat.desc': '与网页内容对话，智能总结、翻译、分析',
-      'ai.agent.title': 'AI Agent',
-      'ai.agent.desc': '自动化浏览器操作，执行复杂任务流程',
-      'ai.models.title': '多模型支持',
-      'ai.models.desc': 'OpenAI · Claude · Gemini · 本地模型，自由切换',
-      'plugins.title': '插件生态',
-      'plugins.desc': '无限扩展，打造你的专属浏览器',
+      'ai.summarize': '自动总结',
+      'ai.fill': '自动填表',
+      'ai.search': '自动搜索',
+      'ai.translate': '自动翻译',
+      'plugins.label.plugin': '插件',
       'plugins.i18n.title': 'English i18n',
       'plugins.i18n.desc': '一键切换浏览器界面为英文，完整的语言包覆盖',
       'plugins.github.title': 'GitHub 中文翻译',
       'plugins.github.desc': '自动翻译 GitHub 页面 UI 文本和状态标签',
       'plugins.custom.title': '个性化定制',
       'plugins.custom.desc': '自定义背景、颜色、布局、CSS，5 个预设主题',
-      'plugins.tag.i18n': 'i18n',
-      'plugins.tag.github': 'ui',
-      'plugins.tag.custom': 'ui',
-      'plugins.sdk.label': 'DriftPluginSDK',
-      'plugins.back': '返回',
       'download.title': '获取 Drift',
       'download.desc': '免费 · 开源 · 为 Windows 而生',
       'download.btn': '下载 Drift',
-      'download.installer.title': '安装版',
-      'download.installer.tag': '推荐大多数用户',
-      'download.portable.title': '便携版',
-      'download.portable.tag': '免安装，直接运行',
-      'download.version': '版本',
-      'download.platform': '平台',
-      'download.license': '协议',
-      'download.engine': '内核',
+      'download.installer': '安装版',
+      'download.portable': '便携版',
       'changelog.title': '更新日志',
-      'changelog.desc': '持续进化，越来越好',
-      'changelog.v233.1': '云盘系统全面重构，支持文件预览和全局搜索',
-      'changelog.v233.2': 'AI Agent 浏览器自动化操作',
-      'changelog.v233.3': '插件系统 SDK 增强',
-      'changelog.v233.4': '性能调节器优化，内存占用降低 30%',
+      'changelog.v233.1': '云盘系统全面重构',
+      'changelog.v233.2': 'AI Agent 浏览器自动化',
+      'changelog.v233.3': '插件 SDK 增强',
+      'changelog.v233.4': '性能优化，内存降低 30%',
       'changelog.v230.1': '内置云盘功能上线',
       'changelog.v230.2': 'DocForge 文档编辑器',
-      'changelog.v230.3': '深色/浅色主题切换优化',
+      'changelog.v230.3': '深色/浅色主题优化',
       'changelog.v225.1': 'AI Chat 多模型支持',
-      'changelog.v225.2': 'Chrome 扩展加载支持',
+      'changelog.v225.2': 'Chrome 扩展加载',
       'changelog.v225.3': '标签分组和分屏视图',
       'changelog.v220.1': '侧载插件系统上线',
       'changelog.v220.2': '广告拦截内置',
       'changelog.v220.3': '自动更新功能',
-      'footer.copy': '© 2025 Drift Browser Team',
       'ctx.refresh': '刷新',
       'ctx.pin': '固定标签',
       'ctx.close': '关闭标签',
       'ctx.newtab': '新标签打开',
-      'fd.ai.title': 'AI 集成',
-      'fd.ai.desc': '内置 AI Chat 与 AI Agent，支持多模型配置。与网页内容智能对话，自动总结、翻译、分析，还能自动化执行复杂浏览器操作流程。',
-      'fd.plugin.title': '插件系统',
-      'fd.plugin.desc': '侧载插件架构，无需重新打包即可扩展浏览器功能。丰富的 SDK API 覆盖 i18n、tabs、storage、messaging 等核心能力。',
-      'fd.cloud.title': '云盘',
-      'fd.cloud.desc': '内置云存储，文件上传下载、在线预览（图片/文本/音视频/Markdown）、全局搜索，数据随身携带。',
-      'fd.perf.title': '性能优化',
-      'fd.perf.desc': '自适应性能调节器，智能冻结后台标签页，内存占用降低 30%，响应速度显著提升。',
-      'fd.tabs.title': '标签管理',
-      'fd.tabs.desc': '标签分组、垂直标签栏、分屏视图，多标签井然有序，高效管理浏览会话。',
-      'fd.adblock.title': '广告拦截',
-      'fd.adblock.desc': '内置广告和追踪器过滤，清爽浏览体验，隐私保护，无需安装第三方扩展。'
+      'demo.ai.q': '总结这个页面的要点',
+      'demo.ai.input': '试试输入问题...',
+      'demo.plugin.item': '🌐 English i18n',
+      'demo.plugin.item2': '🎨 个性化定制',
+      'demo.plugin.drop': '拖拽到此处安装'
     },
     en: {
       'lang.toggle': '中文',
-      'hero.badge': 'v2.33 · Windows',
       'hero.subtitle': 'AI-Powered Next-Gen Desktop Browser',
       'hero.download': 'Download Drift',
       'hero.github': 'GitHub',
-      'features.title': 'Core Features',
-      'features.desc': 'The all-in-one tool for modern browsing',
-      'features.hint': 'Drag to rotate sphere · Click icon for details',
+      'poster.placeholder': 'Place poster image in poster/ directory',
+      'poster.title': 'Redefine Browsing',
+      'poster.desc': 'Drift is more than a browser — it\'s your intelligent companion in the digital world.',
+      'features.ai.title': 'AI Integration',
+      'features.ai.desc': 'Built-in AI Chat & Agent, multi-model support, smart conversations & automation',
+      'features.plugin.title': 'Plugin System',
+      'features.plugin.desc': 'Sideloading architecture, extend browser without repackaging',
+      'features.cloud.title': 'Cloud Drive',
+      'features.cloud.desc': 'Built-in cloud storage, upload/download, online preview, global search',
+      'features.perf.title': 'Performance',
+      'features.perf.desc': 'Adaptive governor, smart tab freezing, less memory usage',
+      'features.tabs.title': 'Tab Management',
+      'features.tabs.desc': 'Tab groups, vertical tab bar, split view, organized multitasking',
+      'features.adblock.title': 'Ad Blocker',
+      'features.adblock.desc': 'Built-in ad & tracker filtering, clean browsing, privacy protection',
       'ai.title': 'AI Powered',
       'ai.desc': 'Not just a browser, your intelligent assistant',
-      'ai.chatTitle': 'AI Chat',
-      'ai.userMsg': 'Summarize the key points of this page',
-      'ai.aiMsg': 'This page covers three core topics: 1. Evolution of modern browser architecture 2. Trends in AI-browser integration 3. New approaches to user privacy protection',
-      'ai.inputPlaceholder': 'Type a message...',
-      'ai.chat.title': 'AI Chat',
-      'ai.chat.desc': 'Converse with web content, smart summarize, translate, analyze',
-      'ai.agent.title': 'AI Agent',
-      'ai.agent.desc': 'Automate browser operations, execute complex task workflows',
-      'ai.models.title': 'Multi-Model',
-      'ai.models.desc': 'OpenAI · Claude · Gemini · Local models, switch freely',
-      'plugins.title': 'Plugin Ecosystem',
-      'plugins.desc': 'Infinite extensibility, build your own browser',
+      'ai.summarize': 'Auto Summarize',
+      'ai.fill': 'Auto Fill',
+      'ai.search': 'Auto Search',
+      'ai.translate': 'Auto Translate',
+      'plugins.label.plugin': 'Plugin',
       'plugins.i18n.title': 'English i18n',
       'plugins.i18n.desc': 'Switch browser interface to English with full language pack coverage',
       'plugins.github.title': 'GitHub Translation',
       'plugins.github.desc': 'Auto-translate GitHub page UI text and status labels to Chinese',
       'plugins.custom.title': 'Customization',
       'plugins.custom.desc': 'Custom backgrounds, colors, layouts, CSS, 5 preset themes',
-      'plugins.tag.i18n': 'i18n',
-      'plugins.tag.github': 'ui',
-      'plugins.tag.custom': 'ui',
-      'plugins.sdk.label': 'DriftPluginSDK',
-      'plugins.back': 'Back',
       'download.title': 'Get Drift',
       'download.desc': 'Free · Open Source · Built for Windows',
       'download.btn': 'Download Drift',
-      'download.installer.title': 'Installer',
-      'download.installer.tag': 'Recommended for most users',
-      'download.portable.title': 'Portable',
-      'download.portable.tag': 'No installation required',
-      'download.version': 'Version',
-      'download.platform': 'Platform',
-      'download.license': 'License',
-      'download.engine': 'Engine',
+      'download.installer': 'Installer',
+      'download.portable': 'Portable',
       'changelog.title': 'Changelog',
-      'changelog.desc': 'Continuously evolving, getting better',
-      'changelog.v233.1': 'Cloud drive system rebuilt, file preview and global search',
+      'changelog.v233.1': 'Cloud drive system rebuilt',
       'changelog.v233.2': 'AI Agent browser automation',
       'changelog.v233.3': 'Plugin SDK enhancements',
-      'changelog.v233.4': 'Performance governor optimized, 30% less memory usage',
+      'changelog.v233.4': 'Performance optimized, 30% less memory',
       'changelog.v230.1': 'Built-in cloud drive launched',
       'changelog.v230.2': 'DocForge document editor',
-      'changelog.v230.3': 'Dark/light theme switching improved',
+      'changelog.v230.3': 'Dark/light theme improved',
       'changelog.v225.1': 'AI Chat multi-model support',
-      'changelog.v225.2': 'Chrome extension loading support',
+      'changelog.v225.2': 'Chrome extension loading',
       'changelog.v225.3': 'Tab groups and split view',
       'changelog.v220.1': 'Sideloading plugin system launched',
       'changelog.v220.2': 'Built-in ad blocker',
       'changelog.v220.3': 'Auto-update feature',
-      'footer.copy': '© 2025 Drift Browser Team',
       'ctx.refresh': 'Refresh',
       'ctx.pin': 'Pin Tab',
       'ctx.close': 'Close Tab',
       'ctx.newtab': 'Open in New Tab',
-      'fd.ai.title': 'AI Integration',
-      'fd.ai.desc': 'Built-in AI Chat & Agent with multi-model support. Smart conversations with web content, auto-summarize, translate, analyze, and automate complex browser workflows.',
-      'fd.plugin.title': 'Plugin System',
-      'fd.plugin.desc': 'Sideloading architecture, extend browser without repackaging. Rich SDK API covering i18n, tabs, storage, messaging and more.',
-      'fd.cloud.title': 'Cloud Drive',
-      'fd.cloud.desc': 'Built-in cloud storage, upload/download, online preview (image/text/audio/video/Markdown), global search, data on the go.',
-      'fd.perf.title': 'Performance',
-      'fd.perf.desc': 'Adaptive performance governor, smart tab freezing, 30% less memory usage, significantly faster response.',
-      'fd.tabs.title': 'Tab Management',
-      'fd.tabs.desc': 'Tab groups, vertical tab bar, split view, organized multitasking for efficient browsing sessions.',
-      'fd.adblock.title': 'Ad Blocker',
-      'fd.adblock.desc': 'Built-in ad & tracker filtering, clean browsing, privacy protection, no third-party extension needed.'
+      'demo.ai.q': 'Summarize the key points',
+      'demo.ai.input': 'Try typing a question...',
+      'demo.plugin.item': '🌐 English i18n',
+      'demo.plugin.item2': '🎨 Customization',
+      'demo.plugin.drop': 'Drag here to install'
     }
   };
 
-  function t(key) {
-    return (i18n[currentLang] && i18n[currentLang][key]) || key;
-  }
+  function t(key) { return (i18n[currentLang] && i18n[currentLang][key]) || key; }
 
   function applyLang() {
     var els = document.querySelectorAll('[data-i18n]');
@@ -186,767 +154,766 @@
       var key = els[i].getAttribute('data-i18n');
       els[i].textContent = t(key);
     }
+    var phEls = document.querySelectorAll('[data-i18n-placeholder]');
+    for (var j = 0; j < phEls.length; j++) {
+      phEls[j].placeholder = t(phEls[j].getAttribute('data-i18n-placeholder'));
+    }
     document.documentElement.lang = currentLang === 'zh' ? 'zh-CN' : 'en';
     renderTabs();
     updateAddrUrl();
   }
 
-  var langBtn = document.getElementById('langToggle');
-  langBtn.addEventListener('click', function () {
-    currentLang = currentLang === 'zh' ? 'en' : 'zh';
-    applyLang();
-  });
+  function liquidElastic(t) {
+    if (t === 0 || t === 1) return t;
+    var p = 0.35;
+    return Math.pow(2, -10 * t) * Math.sin((t - p / 4) * (2 * Math.PI) / p) + 1;
+  }
+
+  function anim(el, props, duration, easing, delay, onDone) {
+    var start = performance.now() + (delay || 0);
+    var from = {};
+    var keys = Object.keys(props);
+    for (var i = 0; i < keys.length; i++) {
+      var k = keys[i];
+      if (k === 'opacity') from[k] = el.style.opacity !== '' ? parseFloat(el.style.opacity) : (parseFloat(getComputedStyle(el).opacity) || 0);
+      else if (k === 'filter') from[k] = 0;
+      else if (k === 'clipRadius') from[k] = 0;
+      else from[k] = parseFloat(el.style[k]) || parseFloat(getComputedStyle(el)[k]) || 0;
+    }
+    function ease(t) {
+      if (easing === 'elastic') return liquidElastic(t);
+      if (easing === 'out') return 1 - Math.pow(1 - t, 3);
+      if (easing === 'inOut') return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      return 1 - Math.pow(1 - t, 4);
+    }
+    function tick(now) {
+      var elapsed = now - start;
+      if (elapsed < 0) { requestAnimationFrame(tick); return; }
+      var progress = Math.min(elapsed / duration, 1);
+      var ep = ease(progress);
+      for (var i = 0; i < keys.length; i++) {
+        var k = keys[i];
+        var val = from[k] + (props[k] - from[k]) * ep;
+        if (k === 'opacity') el.style.opacity = val;
+        else if (k === 'filter') el.style.filter = 'blur(' + val + 'px)';
+        else if (k === 'clipRadius') {
+          var r = val;
+          el.style.clipPath = 'circle(' + r + '% at 50% 100%)';
+        }
+        else if (k === 'scale') el.style.transform = 'scale(' + val + ')';
+        else if (k === 'translateX') el.style.transform = 'translateX(' + val + 'px)';
+        else if (k === 'translateY') el.style.transform = 'translateY(' + val + 'px)';
+        else el.style[k] = val;
+      }
+      if (progress < 1) requestAnimationFrame(tick);
+      else if (onDone) onDone();
+    }
+    requestAnimationFrame(tick);
+  }
+
+  function staggerAnim(els, props, duration, stagger, easing) {
+    for (var i = 0; i < els.length; i++) {
+      anim(els[i], props, duration, easing || 'elastic', i * stagger);
+    }
+  }
 
   var pages = document.querySelectorAll('.page');
   var tabStrip = document.getElementById('tabStrip');
   var addrUrl = document.getElementById('addrUrl');
   var ctxMenu = document.getElementById('contextMenu');
-  var transLayer = document.getElementById('transitionLayer');
+  var langBtn = document.getElementById('langToggle');
+
+  langBtn.addEventListener('click', function () {
+    currentLang = currentLang === 'zh' ? 'en' : 'zh';
+    applyLang();
+    DriftAudio.play('btnClick');
+  });
 
   function renderTabs() {
     tabStrip.innerHTML = '';
-    for (var i = 0; i < tabOrder.length; i++) {
-      var id = tabOrder[i];
-      var data = tabData[id];
-      var tab = document.createElement('div');
-      tab.className = 'tab' + (id === currentPage ? ' active' : '') + (pinnedTabs[id] ? ' pinned' : '');
-      tab.setAttribute('data-id', id);
-      tab.setAttribute('draggable', 'true');
-      tab.innerHTML =
-        '<img class="tab-favicon" src="data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 16 16\'><rect rx=\'3\' width=\'16\' height=\'16\' fill=\'' + encodeURIComponent(data.color) + '\'/><text x=\'3\' y=\'12\' font-size=\'10\' font-weight=\'800\' fill=\'%23060810\'>D</text></svg>">' +
-        '<span class="tab-title">' + data.title[currentLang] + '</span>' +
-        '<svg class="tab-pin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v8l4 4H8l4-4V2"/><circle cx="12" cy="18" r="3"/></svg>' +
-        '<button class="tab-close"><svg width="10" height="10" viewBox="0 0 10 10"><line x1="1" y1="1" x2="9" y2="9" stroke="currentColor" stroke-width="1.2"/><line x1="9" y1="1" x2="1" y2="9" stroke="currentColor" stroke-width="1.2"/></svg></button>';
-      tabStrip.appendChild(tab);
-    }
-    bindTabEvents();
-  }
-
-  function bindTabEvents() {
-    var tabs = tabStrip.querySelectorAll('.tab');
-    for (var i = 0; i < tabs.length; i++) {
-      (function (tabEl) {
-        var id = parseInt(tabEl.getAttribute('data-id'));
-        tabEl.addEventListener('click', function (e) {
-          if (e.target.closest('.tab-close')) return;
-          goToPage(id);
-        });
-        tabEl.querySelector('.tab-close').addEventListener('click', function (e) {
-          e.stopPropagation();
-          closeTab(id);
-        });
-        tabEl.addEventListener('contextmenu', function (e) {
-          e.preventDefault();
-          showCtxMenu(e.clientX, e.clientY, id);
-        });
-        tabEl.addEventListener('dragstart', function (e) {
-          e.dataTransfer.setData('text/plain', id);
-          tabEl.classList.add('dragging');
-        });
-        tabEl.addEventListener('dragend', function () {
-          tabEl.classList.remove('dragging');
-        });
-        tabEl.addEventListener('dragover', function (e) {
-          e.preventDefault();
-        });
-        tabEl.addEventListener('drop', function (e) {
-          e.preventDefault();
-          var fromId = parseInt(e.dataTransfer.getData('text/plain'));
-          var toId = parseInt(tabEl.getAttribute('data-id'));
-          if (fromId !== toId) {
-            var fromIdx = tabOrder.indexOf(fromId);
-            var toIdx = tabOrder.indexOf(toId);
-            tabOrder.splice(fromIdx, 1);
-            tabOrder.splice(toIdx, 0, fromId);
-            renderTabs();
-            DriftAudio.play('tabSwitch');
-          }
-        });
-      })(tabs[i]);
+    for (var i = 0; i < pageList.length; i++) {
+      var btn = document.createElement('button');
+      btn.className = 'tab-item' + (i === currentPage ? ' active' : '');
+      btn.textContent = pageList[i].title[currentLang];
+      btn.setAttribute('data-page', i);
+      btn.addEventListener('click', function () {
+        goToPage(parseInt(this.getAttribute('data-page')));
+      });
+      btn.addEventListener('contextmenu', function (e) {
+        e.preventDefault();
+        showCtxMenu(e.clientX, e.clientY, parseInt(this.getAttribute('data-page')));
+      });
+      tabStrip.appendChild(btn);
     }
   }
 
   function updateAddrUrl() {
-    addrUrl.textContent = tabData[currentPage].url;
+    addrUrl.textContent = pageList[currentPage].url;
   }
 
-  function closeTab(id) {
-    if (pinnedTabs[id]) return;
-    if (Object.keys(pinnedTabs).length === 0 && tabOrder.length <= 1) return;
-    DriftAudio.play('tabClose');
-    var idx = tabOrder.indexOf(id);
-    tabOrder.splice(idx, 1);
-    if (id === currentPage) {
-      var nextId = tabOrder[Math.min(idx, tabOrder.length - 1)];
-      goToPage(nextId);
-    }
-    renderTabs();
-  }
-
-  function showCtxMenu(x, y, tabId) {
+  function showCtxMenu(x, y, pageId) {
     DriftAudio.play('contextMenu');
     ctxMenu.classList.remove('hidden');
     ctxMenu.style.left = x + 'px';
     ctxMenu.style.top = y + 'px';
-    ctxMenu.setAttribute('data-tab', tabId);
-    if (pinnedTabs[tabId]) {
-      ctxMenu.querySelector('[data-action="pin"] span').textContent = t('ctx.pin').replace('固定', '取消固定').replace('Pin', 'Unpin');
-    } else {
-      ctxMenu.querySelector('[data-action="pin"] span').textContent = t('ctx.pin');
-    }
+    ctxMenu.setAttribute('data-page', pageId);
   }
 
-  document.addEventListener('click', function () {
-    ctxMenu.classList.add('hidden');
-  });
+  document.addEventListener('click', function () { ctxMenu.classList.add('hidden'); });
 
   var ctxItems = ctxMenu.querySelectorAll('.ctx-item');
   for (var ci = 0; ci < ctxItems.length; ci++) {
     ctxItems[ci].addEventListener('click', function () {
       var action = this.getAttribute('data-action');
-      var tabId = parseInt(ctxMenu.getAttribute('data-tab'));
       ctxMenu.classList.add('hidden');
-      if (action === 'refresh') {
-        triggerPageAnimations(tabId);
-        DriftAudio.play('btnClick');
-      } else if (action === 'pin') {
-        pinnedTabs[tabId] = !pinnedTabs[tabId];
-        renderTabs();
-        DriftAudio.play('btnClick');
-      } else if (action === 'close') {
-        closeTab(tabId);
-      } else if (action === 'newtab') {
-        DriftAudio.play('btnClick');
-      }
+      DriftAudio.play('btnClick');
+      if (action === 'refresh') triggerPageAnimations(currentPage);
     });
   }
 
-  document.getElementById('btnMin').addEventListener('click', function () { DriftAudio.play('btnClick'); });
-  document.getElementById('btnMax').addEventListener('click', function () { DriftAudio.play('btnClick'); });
-  document.getElementById('btnClose').addEventListener('click', function () {
-    DriftAudio.play('tabClose');
-    if (confirm(currentLang === 'zh' ? '确定要离开吗？' : 'Are you sure you want to leave?')) {
-      window.close();
-    }
-  });
-
   function goToPage(index) {
-    if (isTransitioning || index === currentPage) return;
-    if (tabOrder.indexOf(index) === -1) return;
+    if (isTransitioning || index === currentPage || index < 0 || index >= pageList.length) return;
     isTransitioning = true;
     DriftAudio.play('transitionStart');
 
     var oldPage = currentPage;
     var newPage = index;
-    var transitionType = getTransitionType(oldPage, newPage);
+    var oldEl = pages[oldPage];
+    var newEl = pages[newPage];
 
-    runTransition(transitionType, oldPage, newPage, function () {
-      pages[oldPage].classList.remove('active');
-      pages[newPage].classList.add('active');
-      currentPage = newPage;
-      updateAddrUrl();
-      renderTabs();
-      triggerPageAnimations(newPage);
-      DriftAudio.play('transitionEnd');
-      setTimeout(function () { isTransitioning = false; }, 300);
+    transLiquidClip(oldEl, newEl, function () { finishTransition(oldPage, newPage); });
+  }
+
+  function finishTransition(oldPage, newPage) {
+    pages[oldPage].classList.remove('active');
+    pages[oldPage].style.cssText = '';
+    pages[newPage].classList.add('active');
+    currentPage = newPage;
+    updateAddrUrl();
+    renderTabs();
+    triggerPageAnimations(newPage);
+    DriftAudio.play('transitionEnd');
+    setTimeout(function () { isTransitioning = false; }, 300);
+  }
+
+  function transLiquidClip(oldEl, newEl, cb) {
+    newEl.style.visibility = 'visible';
+    newEl.style.opacity = '1';
+    newEl.style.clipPath = 'circle(0% at 50% 100%)';
+    newEl.classList.add('active');
+
+    anim(oldEl, { opacity: 0 }, 500, 'out', 0, function () {
+      oldEl.style.visibility = '';
+      oldEl.classList.remove('active');
     });
-  }
 
-  function getTransitionType(from, to) {
-    if (from === 0 && to === 1) return 'minimize';
-    if (from === 1 && to === 2) return 'aiGenerate';
-    if (from === 2 && to === 3) return 'puzzle';
-    if (from === 3 && to === 4) return 'dataFlow';
-    if (from === 4 && to === 5) return 'codeScroll';
-    if (from === 5 && to === 0) return 'timeReverse';
-    if (to < from) {
-      if (to === 0) return 'timeReverse';
-      return 'minimize';
-    }
-    return 'minimize';
-  }
-
-  function runTransition(type, from, to, callback) {
-    var duration = 1600;
-    switch (type) {
-      case 'minimize':
-        transMinimize(from, to, duration, callback);
-        break;
-      case 'aiGenerate':
-        transAiGenerate(from, to, duration, callback);
-        break;
-      case 'puzzle':
-        transPuzzle(from, to, duration, callback);
-        break;
-      case 'dataFlow':
-        transDataFlow(from, to, duration, callback);
-        break;
-      case 'codeScroll':
-        transCodeScroll(from, to, duration, callback);
-        break;
-      case 'timeReverse':
-        transTimeReverse(from, to, duration, callback);
-        break;
-      default:
-        callback();
-    }
-  }
-
-  function transMinimize(from, to, dur, cb) {
-    var fromEl = pages[from];
-    fromEl.style.transition = 'transform ' + (dur * 0.5) + 'ms cubic-bezier(0.4,0,0.2,1), opacity ' + (dur * 0.3) + 'ms';
-    fromEl.style.transform = 'scale(0.1) translateY(-200%)';
-    fromEl.style.opacity = '0';
-    setTimeout(function () {
-      fromEl.style.transition = '';
-      fromEl.style.transform = '';
-      fromEl.style.opacity = '';
-      cb();
-    }, dur * 0.55);
-  }
-
-  function transAiGenerate(from, to, dur, cb) {
-    var pixels = [];
-    var cols = 20;
-    var rows = 12;
-    var pw = window.innerWidth / cols;
-    var ph = window.innerHeight / rows;
-    for (var r = 0; r < rows; r++) {
-      for (var c = 0; c < cols; c++) {
-        var px = document.createElement('div');
-        px.className = 'trans-pixel';
-        px.style.left = (c * pw) + 'px';
-        px.style.top = (r * ph) + 'px';
-        px.style.width = pw + 'px';
-        px.style.height = ph + 'px';
-        var cx = window.innerWidth / 2;
-        var cy = window.innerHeight / 2;
-        var dx = c * pw + pw / 2 - cx;
-        var dy = r * ph + ph / 2 - cy;
-        var dist = Math.sqrt(dx * dx + dy * dy);
-        var maxDist = Math.sqrt(cx * cx + cy * cy);
-        var delay = (dist / maxDist) * 600;
-        px.style.transition = 'opacity 0.4s ' + delay + 'ms, background 0.4s ' + delay + 'ms';
-        transLayer.appendChild(px);
-        pixels.push(px);
-      }
-    }
-    requestAnimationFrame(function () {
-      for (var i = 0; i < pixels.length; i++) {
-        pixels[i].style.opacity = '1';
-        pixels[i].style.background = '#4FC3F7';
-      }
+    anim(newEl, { clipRadius: 160 }, 900, 'elastic', 100, function () {
+      newEl.style.clipPath = '';
+      if (cb) cb();
     });
-    setTimeout(function () {
-      for (var i = 0; i < pixels.length; i++) {
-        pixels[i].style.opacity = '0';
-      }
-      cb();
-    }, dur * 0.5);
-    setTimeout(function () {
-      for (var i = 0; i < pixels.length; i++) {
-        if (pixels[i].parentNode) pixels[i].parentNode.removeChild(pixels[i]);
-      }
-    }, dur);
-  }
-
-  function transPuzzle(from, to, dur, cb) {
-    var shards = [];
-    var count = 12;
-    for (var i = 0; i < count; i++) {
-      var s = document.createElement('div');
-      s.className = 'trans-shard';
-      var w = window.innerWidth / 4 + Math.random() * 100;
-      var h = 40 + Math.random() * 80;
-      s.style.width = w + 'px';
-      s.style.height = h + 'px';
-      s.style.left = (Math.random() * window.innerWidth) + 'px';
-      s.style.top = (Math.random() * window.innerHeight) + 'px';
-      s.style.borderRadius = '4px';
-      s.style.transition = 'all 0.8s cubic-bezier(0.16,1,0.3,1)';
-      s.style.background = i % 2 === 0 ? '#4FC3F7' : '#FF6D00';
-      transLayer.appendChild(s);
-      shards.push(s);
-    }
-    requestAnimationFrame(function () {
-      for (var i = 0; i < shards.length; i++) {
-        shards[i].style.opacity = '0.6';
-      }
-    });
-    setTimeout(function () {
-      for (var i = 0; i < shards.length; i++) {
-        var angle = Math.random() * 360;
-        var dist = 200 + Math.random() * 400;
-        shards[i].style.transform = 'translate(' + (Math.cos(angle) * dist) + 'px,' + (Math.sin(angle) * dist) + 'px) rotate(' + (Math.random() * 360) + 'deg)';
-        shards[i].style.opacity = '0';
-      }
-    }, 50);
-    setTimeout(function () {
-      cb();
-    }, dur * 0.5);
-    setTimeout(function () {
-      for (var i = 0; i < shards.length; i++) {
-        if (shards[i].parentNode) shards[i].parentNode.removeChild(shards[i]);
-      }
-    }, dur);
-  }
-
-  function transDataFlow(from, to, dur, cb) {
-    var lines = [];
-    var count = 15;
-    for (var i = 0; i < count; i++) {
-      var l = document.createElement('div');
-      l.className = 'trans-code-line';
-      l.style.top = (i * (window.innerHeight / count)) + 'px';
-      l.style.transition = 'opacity 0.3s ' + (i * 40) + 'ms, transform 0.6s ' + (i * 40) + 'ms';
-      transLayer.appendChild(l);
-      lines.push(l);
-    }
-    requestAnimationFrame(function () {
-      for (var i = 0; i < lines.length; i++) {
-        lines[i].style.opacity = '0.8';
-      }
-    });
-    setTimeout(function () {
-      for (var i = 0; i < lines.length; i++) {
-        lines[i].style.transform = 'translateY(' + window.innerHeight + 'px)';
-        lines[i].style.opacity = '0';
-      }
-    }, 100);
-    setTimeout(function () {
-      cb();
-    }, dur * 0.5);
-    setTimeout(function () {
-      for (var i = 0; i < lines.length; i++) {
-        if (lines[i].parentNode) lines[i].parentNode.removeChild(lines[i]);
-      }
-    }, dur);
-  }
-
-  function transCodeScroll(from, to, dur, cb) {
-    var codeLines = [];
-    var count = 20;
-    for (var i = 0; i < count; i++) {
-      var l = document.createElement('div');
-      l.style.position = 'absolute';
-      l.style.left = '10%';
-      l.style.right = '10%';
-      l.style.height = '1px';
-      l.style.background = 'rgba(79,195,247,0.3)';
-      l.style.top = (i * 30) + 'px';
-      l.style.transition = 'transform 0.8s cubic-bezier(0.4,0,0.2,1), opacity 0.4s';
-      transLayer.appendChild(l);
-      codeLines.push(l);
-    }
-    requestAnimationFrame(function () {
-      for (var i = 0; i < codeLines.length; i++) {
-        codeLines[i].style.transform = 'translateY(' + window.innerHeight + 'px)';
-      }
-    });
-    setTimeout(function () {
-      cb();
-    }, dur * 0.5);
-    setTimeout(function () {
-      for (var i = 0; i < codeLines.length; i++) {
-        if (codeLines[i].parentNode) codeLines[i].parentNode.removeChild(codeLines[i]);
-      }
-    }, dur);
-  }
-
-  function transTimeReverse(from, to, dur, cb) {
-    var fromEl = pages[from];
-    fromEl.style.transition = 'transform ' + (dur * 0.6) + 'ms cubic-bezier(0.4,0,0.2,1), opacity ' + (dur * 0.4) + 'ms';
-    fromEl.style.transform = 'scale(1.1)';
-    fromEl.style.opacity = '0';
-    fromEl.style.filter = 'blur(10px)';
-    setTimeout(function () {
-      fromEl.style.transition = '';
-      fromEl.style.transform = '';
-      fromEl.style.opacity = '';
-      fromEl.style.filter = '';
-      cb();
-    }, dur * 0.55);
   }
 
   function triggerPageAnimations(pageIndex) {
     var page = pages[pageIndex];
     if (!page) return;
 
-    if (pageIndex === 2) startTypewriter();
-    if (pageIndex === 1) initSphere();
-
-    var aiItems = page.querySelectorAll('.ai-feature-item');
-    for (var j = 0; j < aiItems.length; j++) {
-      (function (item, delay) {
-        setTimeout(function () { item.classList.add('visible'); }, delay * 150 + 300);
-      })(aiItems[j], j);
+    var title = page.querySelector('.section-title');
+    var desc = page.querySelector('.section-desc');
+    if (title) {
+      title.style.opacity = '0';
+      title.style.filter = 'blur(8px)';
+      title.style.transform = 'translateY(20px)';
+      anim(title, { opacity: 1, filter: 0 }, 700, 'elastic', 150);
+      anim(title, { translateY: 0 }, 700, 'elastic', 150);
+    }
+    if (desc) {
+      desc.style.opacity = '0';
+      desc.style.transform = 'translateY(15px)';
+      anim(desc, { opacity: 1 }, 600, 'out', 300);
+      anim(desc, { translateY: 0 }, 600, 'elastic', 300);
     }
 
-    var tlItems = page.querySelectorAll('.tl-item');
-    for (var k = 0; k < tlItems.length; k++) {
-      (function (item, delay) {
-        setTimeout(function () { item.classList.add('visible'); }, delay * 200 + 200);
-      })(tlItems[k], k);
+    if (pageIndex === 0) initHeroEntrance();
+    if (pageIndex === 1) initPosterEntrance();
+    if (pageIndex === 2) initFeatureCarousel();
+    if (pageIndex === 3) initAIDemo();
+    if (pageIndex === 4) initPluginsCarousel();
+    if (pageIndex === 5) initDownloadEntrance();
+    if (pageIndex === 6) initChangelogEntrance();
+  }
+
+  function initHeroEntrance() {
+    var heroTitle = document.querySelector('.hero-title');
+    var heroSub = document.querySelector('.hero-subtitle');
+    var heroActions = document.querySelector('.hero-actions');
+    if (heroTitle) {
+      heroTitle.style.opacity = '0';
+      heroTitle.style.filter = 'blur(12px)';
+      heroTitle.style.transform = 'scale(0.9)';
+      anim(heroTitle, { opacity: 1, filter: 0 }, 800, 'elastic', 200);
+      anim(heroTitle, { scale: 1 }, 800, 'elastic', 200);
+    }
+    if (heroSub) {
+      heroSub.style.opacity = '0';
+      heroSub.style.transform = 'translateY(20px)';
+      anim(heroSub, { opacity: 1 }, 600, 'out', 500);
+      anim(heroSub, { translateY: 0 }, 600, 'elastic', 500);
+    }
+    if (heroActions) {
+      heroActions.style.opacity = '0';
+      heroActions.style.transform = 'scale(0.9)';
+      anim(heroActions, { opacity: 1 }, 500, 'out', 700);
+      anim(heroActions, { scale: 1 }, 500, 'elastic', 700);
     }
   }
 
-  var typewriterRunning = false;
-  function startTypewriter() {
-    if (typewriterRunning) return;
-    typewriterRunning = true;
-    var aiMsg = document.getElementById('chatAiMsg');
-    if (!aiMsg) { typewriterRunning = false; return; }
-    var text = t('ai.aiMsg');
-    aiMsg.textContent = '';
-    var cursor = document.getElementById('chatCursor');
-    var i = 0;
-    function type() {
-      if (i < text.length) {
-        aiMsg.textContent += text[i];
-        i++;
-        setTimeout(type, 30 + Math.random() * 40);
-      } else {
-        typewriterRunning = false;
-      }
+  function initPosterEntrance() {
+    var posterFrame = document.querySelector('.poster-frame');
+    var posterText = document.querySelector('.poster-text');
+    if (posterFrame) {
+      posterFrame.style.opacity = '0';
+      posterFrame.style.transform = 'scale(0.9)';
+      anim(posterFrame, { opacity: 1 }, 600, 'out', 200);
+      anim(posterFrame, { scale: 1 }, 600, 'elastic', 200);
     }
-    setTimeout(type, 800);
+    if (posterText) {
+      posterText.style.opacity = '0';
+      posterText.style.transform = 'translateY(20px)';
+      anim(posterText, { opacity: 1 }, 500, 'out', 400);
+      anim(posterText, { translateY: 0 }, 500, 'elastic', 400);
+    }
   }
 
-  var sphereInited = false;
-  var sphereAngle = 0;
-  var sphereDragging = false;
-  var sphereLastX = 0;
-  var sphereLastY = 0;
-  var sphereRotX = 0;
-  var sphereRotY = 0;
-
-  function initSphere() {
-    if (sphereInited) return;
-    sphereInited = true;
-    var canvas = document.getElementById('sphereCanvas');
-    if (!canvas) return;
-    var ctx = canvas.getContext('2d');
-
-    function resize() {
-      canvas.width = canvas.parentElement.clientWidth;
-      canvas.height = canvas.parentElement.clientHeight;
+  function initDownloadEntrance() {
+    var dlTitle = document.querySelector('.download-title');
+    var dlSub = document.querySelector('.download-subtitle');
+    var dlBtn = document.querySelector('.download-btn');
+    var dlLinks = document.querySelector('.download-links');
+    var dlMeta = document.querySelector('.download-meta');
+    if (dlTitle) {
+      dlTitle.style.opacity = '0';
+      dlTitle.style.filter = 'blur(10px)';
+      dlTitle.style.transform = 'translateY(30px)';
+      anim(dlTitle, { opacity: 1, filter: 0 }, 800, 'elastic', 200);
+      anim(dlTitle, { translateY: 0 }, 800, 'elastic', 200);
     }
-    resize();
-    window.addEventListener('resize', resize);
-
-    var features = [
-      { key: 'ai', angle: 0, icon: '🤖' },
-      { key: 'plugin', angle: 60, icon: '🧩' },
-      { key: 'cloud', angle: 120, icon: '☁️' },
-      { key: 'perf', angle: 180, icon: '⚡' },
-      { key: 'tabs', angle: 240, icon: '📑' },
-      { key: 'adblock', angle: 300, icon: '🛡️' }
-    ];
-
-    canvas.addEventListener('mousedown', function (e) {
-      sphereDragging = true;
-      sphereLastX = e.clientX;
-      sphereLastY = e.clientY;
-      DriftAudio.play('sphereRotate');
-    });
-
-    canvas.addEventListener('mousemove', function (e) {
-      if (!sphereDragging) return;
-      var dx = e.clientX - sphereLastX;
-      var dy = e.clientY - sphereLastY;
-      sphereRotY += dx * 0.01;
-      sphereRotX += dy * 0.01;
-      sphereLastX = e.clientX;
-      sphereLastY = e.clientY;
-    });
-
-    canvas.addEventListener('mouseup', function () { sphereDragging = false; });
-    canvas.addEventListener('mouseleave', function () { sphereDragging = false; });
-
-    canvas.addEventListener('click', function (e) {
-      var rect = canvas.getBoundingClientRect();
-      var cx = canvas.width / 2;
-      var cy = canvas.height / 2;
-      var mx = e.clientX - rect.left;
-      var my = e.clientY - rect.top;
-      var radius = Math.min(canvas.width, canvas.height) * 0.25;
-
-      for (var i = 0; i < features.length; i++) {
-        var a = (features[i].angle + sphereRotY * 57.3) * Math.PI / 180;
-        var x = cx + Math.cos(a) * radius;
-        var y = cy + Math.sin(a) * radius * 0.5 + Math.sin(sphereRotX + i) * 20;
-        var dx = mx - x;
-        var dy = my - y;
-        if (Math.sqrt(dx * dx + dy * dy) < 30) {
-          showFeatureDetail(features[i].key);
-          return;
-        }
-      }
-    });
-
-    function draw() {
-      if (currentPage !== 1) { requestAnimationFrame(draw); return; }
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      var cx = canvas.width / 2;
-      var cy = canvas.height / 2;
-      var radius = Math.min(canvas.width, canvas.height) * 0.25;
-
-      if (!sphereDragging) {
-        sphereRotY += 0.003;
-      }
-
-      ctx.beginPath();
-      ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(79,195,247,0.08)';
-      ctx.lineWidth = 1;
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.ellipse(cx, cy, radius, radius * 0.3, 0, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(79,195,247,0.05)';
-      ctx.stroke();
-
-      var sorted = [];
-      for (var i = 0; i < features.length; i++) {
-        var a = (features[i].angle + sphereRotY * 57.3) * Math.PI / 180;
-        var x = cx + Math.cos(a) * radius;
-        var yBase = cy + Math.sin(a) * radius * 0.5;
-        var z = Math.sin(a);
-        sorted.push({ feature: features[i], x: x, y: yBase + Math.sin(sphereRotX + i * 0.5) * 15, z: z, a: a });
-      }
-      sorted.sort(function (a, b) { return a.z - b.z; });
-
-      for (var j = 0; j < sorted.length; j++) {
-        var item = sorted[j];
-        var scale = 0.6 + (item.z + 1) * 0.3;
-        var alpha = 0.3 + (item.z + 1) * 0.35;
-        ctx.beginPath();
-        ctx.arc(item.x, item.y, 22 * scale, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(79,195,247,' + (alpha * 0.15) + ')';
-        ctx.fill();
-        ctx.strokeStyle = 'rgba(79,195,247,' + alpha + ')';
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
-        ctx.font = (18 * scale) + 'px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.globalAlpha = alpha;
-        ctx.fillText(item.feature.icon, item.x, item.y);
-        ctx.globalAlpha = 1;
-      }
-
-      requestAnimationFrame(draw);
+    if (dlSub) {
+      dlSub.style.opacity = '0';
+      anim(dlSub, { opacity: 1 }, 600, 'out', 500);
     }
-    draw();
+    if (dlBtn) {
+      dlBtn.style.opacity = '0';
+      dlBtn.style.transform = 'scale(0.8)';
+      anim(dlBtn, { opacity: 1 }, 500, 'out', 700);
+      anim(dlBtn, { scale: 1 }, 600, 'elastic', 700);
+    }
+    if (dlLinks) {
+      dlLinks.style.opacity = '0';
+      anim(dlLinks, { opacity: 1 }, 500, 'out', 900);
+    }
+    if (dlMeta) {
+      dlMeta.style.opacity = '0';
+      anim(dlMeta, { opacity: 1 }, 500, 'out', 1000);
+    }
   }
 
-  function showFeatureDetail(key) {
-    DriftAudio.play('btnClick');
-    var detail = document.getElementById('featureDetail');
-    var fdIcon = document.getElementById('fdIcon');
-    var fdTitle = document.getElementById('fdTitle');
-    var fdDesc = document.getElementById('fdDesc');
-    var icons = { ai: '🤖', plugin: '🧩', cloud: '☁️', perf: '⚡', tabs: '📑', adblock: '🛡️' };
-    fdIcon.textContent = icons[key] || '';
-    fdTitle.textContent = t('fd.' + key + '.title');
-    fdDesc.textContent = t('fd.' + key + '.desc');
-    detail.classList.remove('hidden');
-    setTimeout(function () { detail.classList.add('show'); }, 10);
+  function initChangelogEntrance() {
+    var items = document.querySelectorAll('.changelog-item');
+    for (var i = 0; i < items.length; i++) {
+      items[i].style.opacity = '0';
+      items[i].style.transform = 'translateY(20px)';
+      anim(items[i], { opacity: 1 }, 500, 'out', 200 + i * 150);
+      anim(items[i], { translateY: 0 }, 600, 'elastic', 200 + i * 150);
+    }
   }
 
-  document.getElementById('fdClose').addEventListener('click', function () {
-    var detail = document.getElementById('featureDetail');
-    detail.classList.remove('show');
-    setTimeout(function () { detail.classList.add('hidden'); }, 400);
+  document.addEventListener('keydown', function (e) {
+    if (isTransitioning) return;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      goToPage(currentPage + 1);
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      goToPage(currentPage - 1);
+    }
   });
 
-  var pluginCards = document.querySelectorAll('.plugin-card');
-  for (var pc = 0; pc < pluginCards.length; pc++) {
-    pluginCards[pc].addEventListener('click', function () {
-      DriftAudio.play('btnClick');
-      var name = this.getAttribute('data-plugin');
-      var overlay = document.getElementById('pluginOverlay');
-      var content = document.getElementById('poContent');
-      var titles = { i18n: t('plugins.i18n.title'), github: t('plugins.github.title'), custom: t('plugins.custom.title') };
-      var descs = { i18n: t('plugins.i18n.desc'), github: t('plugins.github.desc'), custom: t('plugins.custom.desc') };
-      content.innerHTML = '<h2 style="font-size:28px;font-weight:800;margin-bottom:12px">' + titles[name] + '</h2>' +
-        '<p style="color:var(--fg-1);line-height:1.8;max-width:400px;margin:0 auto">' + descs[name] + '</p>';
-      overlay.classList.remove('hidden');
-    });
-
-    pluginCards[pc].addEventListener('dragstart', function (e) {
-      e.dataTransfer.setData('text/plain', this.getAttribute('data-plugin'));
-      this.classList.add('dragging');
-    });
-    pluginCards[pc].addEventListener('dragend', function () {
-      this.classList.remove('dragging');
-    });
-  }
-
-  var pluginsGrid = document.getElementById('pluginsGrid');
-  pluginsGrid.addEventListener('dragover', function (e) { e.preventDefault(); });
-  pluginsGrid.addEventListener('drop', function (e) {
+  var wheelAccum = 0;
+  var wheelTimeout;
+  document.addEventListener('wheel', function (e) {
+    if (isTransitioning) return;
+    var activePage = pages[currentPage];
+    if (activePage && activePage.classList.contains('page-changelog')) return;
     e.preventDefault();
-    var fromPlugin = e.dataTransfer.getData('text/plain');
-    var toEl = e.target.closest('.plugin-card');
-    if (toEl) {
-      var toPlugin = toEl.getAttribute('data-plugin');
-      if (fromPlugin !== toPlugin) {
-        var cards = Array.from(pluginsGrid.querySelectorAll('.plugin-card'));
-        var fromIdx = cards.findIndex(function (c) { return c.getAttribute('data-plugin') === fromPlugin; });
-        var toIdx = cards.findIndex(function (c) { return c.getAttribute('data-plugin') === toPlugin; });
-        if (fromIdx < toIdx) {
-          pluginsGrid.insertBefore(cards[fromIdx], cards[toIdx].nextSibling);
-        } else {
-          pluginsGrid.insertBefore(cards[fromIdx], cards[toIdx]);
-        }
-        DriftAudio.play('btnClick');
-      }
+    wheelAccum += e.deltaY;
+    clearTimeout(wheelTimeout);
+    wheelTimeout = setTimeout(function () { wheelAccum = 0; }, 200);
+    if (Math.abs(wheelAccum) >= 80) {
+      goToPage(currentPage + (wheelAccum > 0 ? 1 : -1));
+      wheelAccum = 0;
     }
+  }, { passive: false });
+
+  document.addEventListener('click', function (e) {
+    var rippleEl = document.getElementById('rippleEffect');
+    var circle = document.createElement('div');
+    circle.className = 'ripple-circle';
+    circle.style.left = e.clientX + 'px';
+    circle.style.top = e.clientY + 'px';
+    circle.style.width = '60px';
+    circle.style.height = '60px';
+    rippleEl.appendChild(circle);
+    setTimeout(function () { if (circle.parentNode) circle.parentNode.removeChild(circle); }, 900);
   });
 
-  document.getElementById('poBack').addEventListener('click', function () {
-    document.getElementById('pluginOverlay').classList.add('hidden');
-  });
+  function init3DTilt() {
+    var tiltEls = document.querySelectorAll('[data-tilt]');
+    document.addEventListener('mousemove', function (e) {
+      for (var i = 0; i < tiltEls.length; i++) {
+        var el = tiltEls[i];
+        var rect = el.getBoundingClientRect();
+        var cx = rect.left + rect.width / 2;
+        var cy = rect.top + rect.height / 2;
+        var dx = (e.clientX - cx) / (rect.width / 2);
+        var dy = (e.clientY - cy) / (rect.height / 2);
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist > 3) {
+          el.style.transform = '';
+          continue;
+        }
+        var tiltX = dy * -6;
+        var tiltY = dx * 6;
+        el.style.transform = 'perspective(800px) rotateX(' + tiltX + 'deg) rotateY(' + tiltY + 'deg)';
+      }
+    });
+  }
 
-  var engineStarted = false;
-  document.getElementById('engineBtn').addEventListener('click', function () {
-    if (engineStarted) return;
-    engineStarted = true;
-    DriftAudio.play('engineStart');
-    this.classList.add('started');
-    setTimeout(function () {
-      window.open('https://github.com/151shi23/drift-browser/releases', '_blank');
-    }, 2000);
-    setTimeout(function () {
-      engineStarted = false;
-      document.getElementById('engineBtn').classList.remove('started');
-    }, 4000);
-  });
+  function initGlossEffect() {
+    var glossEls = document.querySelectorAll('[data-gloss]');
+    document.addEventListener('mousemove', function (e) {
+      for (var i = 0; i < glossEls.length; i++) {
+        var el = glossEls[i];
+        var rect = el.getBoundingClientRect();
+        var x = ((e.clientX - rect.left) / rect.width * 100);
+        var y = ((e.clientY - rect.top) / rect.height * 100);
+        el.style.setProperty('--gloss-x', x + '%');
+        el.style.setProperty('--gloss-y', y + '%');
+      }
+    });
+  }
 
-  function initHeroCanvas() {
-    var canvas = document.getElementById('heroCanvas');
+  function initInkCanvas() {
+    var canvas = document.getElementById('inkCanvas');
     if (!canvas) return;
     var ctx = canvas.getContext('2d');
-    var particles = [];
-    var mouseX = 0;
-    var mouseY = 0;
+    var mouseX = 0.5, mouseY = 0.5;
+    var time = 0;
+    var drops = [];
 
-    function resize() {
-      canvas.width = canvas.parentElement.clientWidth;
-      canvas.height = canvas.parentElement.clientHeight;
-    }
+    function resize() { canvas.width = canvas.parentElement.clientWidth; canvas.height = canvas.parentElement.clientHeight; }
     resize();
     window.addEventListener('resize', resize);
-
-    for (var i = 0; i < 200; i++) {
-      particles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        vx: (Math.random() - 0.5) * 0.5,
-        vy: (Math.random() - 0.5) * 0.5,
-        r: Math.random() * 2 + 0.5,
-        o: Math.random() * 0.5 + 0.1,
-        targetX: null,
-        targetY: null
-      });
-    }
 
     canvas.parentElement.addEventListener('mousemove', function (e) {
       var rect = canvas.getBoundingClientRect();
-      mouseX = e.clientX - rect.left;
-      mouseY = e.clientY - rect.top;
+      mouseX = (e.clientX - rect.left) / rect.width;
+      mouseY = (e.clientY - rect.top) / rect.height;
+      if (Math.random() < 0.3) {
+        drops.push({
+          x: mouseX * canvas.width,
+          y: mouseY * canvas.height,
+          r: 20 + Math.random() * 60,
+          maxR: 80 + Math.random() * 160,
+          opacity: 0.04 + Math.random() * 0.06,
+          speed: 0.3 + Math.random() * 0.5
+        });
+      }
     });
 
-    var assembling = false;
-    var assembleStart = 0;
+    for (var i = 0; i < 8; i++) {
+      drops.push({
+        x: Math.random() * 1920,
+        y: Math.random() * 1080,
+        r: 40 + Math.random() * 100,
+        maxR: 150 + Math.random() * 200,
+        opacity: 0.03 + Math.random() * 0.05,
+        speed: 0.2 + Math.random() * 0.4
+      });
+    }
 
-    setTimeout(function () {
-      assembling = true;
-      assembleStart = Date.now();
-    }, 500);
+    function simplex2D(x, y) {
+      var n = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453;
+      return n - Math.floor(n);
+    }
 
     function draw() {
       if (currentPage !== 0) { requestAnimationFrame(draw); return; }
+      time += 0.005;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      var cx = canvas.width / 2;
-      var cy = canvas.height / 2;
-      var winW = 280;
-      var winH = 180;
-      var winX = cx - winW / 2;
-      var winY = cy - winH / 2 - 20;
-
-      for (var i = 0; i < particles.length; i++) {
-        var p = particles[i];
-
-        if (assembling) {
-          var progress = Math.min(1, (Date.now() - assembleStart) / 3000);
-          var eased = 1 - Math.pow(1 - progress, 3);
-
-          var col = i % 28;
-          var row = Math.floor(i / 28) % 14;
-          var tx, ty;
-
-          if (row === 0) {
-            tx = winX + (col / 28) * winW;
-            ty = winY;
-          } else if (row === 13) {
-            tx = winX + (col / 28) * winW;
-            ty = winY + winH;
-          } else if (col === 0 || col === 27) {
-            tx = winX + (col === 0 ? 0 : winW);
-            ty = winY + (row / 14) * winH;
-          } else {
-            tx = winX + Math.random() * winW;
-            ty = winY + Math.random() * winH;
-          }
-
-          p.x += (tx - p.x) * eased * 0.02;
-          p.y += (ty - p.y) * eased * 0.02;
+      for (var i = drops.length - 1; i >= 0; i--) {
+        var d = drops[i];
+        d.r += d.speed;
+        if (d.r > d.maxR) {
+          drops.splice(i, 1);
+          continue;
         }
-
-        var dx = mouseX - p.x;
-        var dy = mouseY - p.y;
-        var dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < 150) {
-          p.x -= dx * 0.01;
-          p.y -= dy * 0.01;
-        }
-
-        p.x += p.vx;
-        p.y += p.vy;
-        if (p.x < 0) p.x = canvas.width;
-        if (p.x > canvas.width) p.x = 0;
-        if (p.y < 0) p.y = canvas.height;
-        if (p.y > canvas.height) p.y = 0;
-
+        var fade = 1 - (d.r / d.maxR);
+        var alpha = d.opacity * fade;
+        var grad = ctx.createRadialGradient(d.x, d.y, 0, d.x, d.y, d.r);
+        grad.addColorStop(0, 'rgba(255,255,255,' + (alpha * 1.5) + ')');
+        grad.addColorStop(0.3, 'rgba(200,220,230,' + (alpha * 0.8) + ')');
+        grad.addColorStop(0.6, 'rgba(0,188,212,' + (alpha * 0.3) + ')');
+        grad.addColorStop(1, 'rgba(0,0,0,0)');
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(79,195,247,' + p.o + ')';
+        ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+        ctx.fillStyle = grad;
         ctx.fill();
       }
 
-      for (var j = 0; j < particles.length; j++) {
-        for (var k = j + 1; k < particles.length; k++) {
-          var ddx = particles[j].x - particles[k].x;
-          var ddy = particles[j].y - particles[k].y;
-          var dd = ddx * ddx + ddy * ddy;
-          if (dd < 6400) {
-            ctx.beginPath();
-            ctx.moveTo(particles[j].x, particles[j].y);
-            ctx.lineTo(particles[k].x, particles[k].y);
-            ctx.strokeStyle = 'rgba(79,195,247,' + (0.04 * (1 - dd / 6400)) + ')';
-            ctx.lineWidth = 0.5;
-            ctx.stroke();
+      for (var x = 0; x < canvas.width; x += 8) {
+        for (var y = 0; y < canvas.height; y += 8) {
+          var n = simplex2D(x * 0.003 + time, y * 0.003 + time * 0.7);
+          if (n > 0.92) {
+            var a = (n - 0.92) * 3;
+            ctx.fillStyle = 'rgba(255,255,255,' + (a * 0.03) + ')';
+            ctx.fillRect(x, y, 8, 8);
           }
         }
+      }
+
+      if (Math.random() < 0.02) {
+        drops.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          r: 10,
+          maxR: 60 + Math.random() * 120,
+          opacity: 0.02 + Math.random() * 0.04,
+          speed: 0.2 + Math.random() * 0.3
+        });
       }
 
       requestAnimationFrame(draw);
     }
     draw();
   }
+
+  function initFeatureCarousel() {
+    var slides = document.querySelectorAll('.feature-slide');
+    var dotsContainer = document.getElementById('featDots');
+    if (dotsContainer.children.length === 0) {
+      for (var i = 0; i < slides.length; i++) {
+        var dot = document.createElement('div');
+        dot.className = 'feat-dot' + (i === 0 ? ' active' : '');
+        dot.setAttribute('data-index', i);
+        dot.addEventListener('click', function () { goToFeature(parseInt(this.getAttribute('data-index'))); });
+        dotsContainer.appendChild(dot);
+      }
+    }
+    if (!slides[0].classList.contains('active')) {
+      slides[0].classList.add('active');
+    }
+    initFeatureDemos();
+  }
+
+  function goToFeature(index) {
+    var slides = document.querySelectorAll('.feature-slide');
+    var dots = document.querySelectorAll('.feat-dot');
+    if (index < 0 || index >= slides.length || index === currentFeature) return;
+    DriftAudio.play('tabSwitch');
+
+    slides[currentFeature].classList.remove('active');
+    slides[currentFeature].classList.add('exit-up');
+    setTimeout(function () { slides[currentFeature].classList.remove('exit-up'); currentFeature = index; }, 700);
+
+    var prevFeature = currentFeature;
+    slides[index].classList.add('active');
+    dots[prevFeature].classList.remove('active');
+    dots[index].classList.add('active');
+    currentFeature = index;
+  }
+
+  document.getElementById('featPrev').addEventListener('click', function () { goToFeature(currentFeature - 1); });
+  document.getElementById('featNext').addEventListener('click', function () { goToFeature(currentFeature + 1); });
+
+  function initFeatureDemos() {
+    var aiInput = document.getElementById('demoAiInput');
+    if (aiInput && !aiInput._bound) {
+      aiInput._bound = true;
+      aiInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && this.value.trim()) {
+          var reply = document.getElementById('demoAiReply');
+          reply.textContent = '';
+          var text = currentLang === 'zh' ? '这是一个很好的问题！让我为你分析...' : 'Great question! Let me analyze that for you...';
+          var i = 0;
+          function type() {
+            if (i < text.length) { reply.textContent += text[i]; i++; setTimeout(type, 30); }
+          }
+          type();
+          this.value = '';
+          DriftAudio.play('btnClick');
+        }
+      });
+    }
+
+    var dropZone = document.querySelector('.demo-drop-zone');
+    if (dropZone && !dropZone._bound) {
+      dropZone._bound = true;
+      dropZone.addEventListener('dragover', function (e) { e.preventDefault(); this.style.borderColor = '#00E676'; this.style.background = 'rgba(0,230,118,0.1)'; });
+      dropZone.addEventListener('dragleave', function () { this.style.borderColor = ''; this.style.background = ''; });
+      dropZone.addEventListener('drop', function (e) {
+        e.preventDefault();
+        this.textContent = currentLang === 'zh' ? '✅ 安装成功！' : '✅ Installed!';
+        this.style.borderColor = '#00E676';
+        this.style.background = 'rgba(0,230,118,0.15)';
+        DriftAudio.play('btnClick');
+      });
+    }
+
+    initPerfChart();
+    initAdblockDemo();
+  }
+
+  function initPerfChart() {
+    var canvas = document.getElementById('perfChart');
+    if (!canvas || canvas._inited) return;
+    canvas._inited = true;
+    var ctx = canvas.getContext('2d');
+    var data = [];
+    for (var i = 0; i < 30; i++) data.push(60 + Math.random() * 30);
+
+    function draw() {
+      if (currentPage !== 2) { requestAnimationFrame(draw); return; }
+      data.shift();
+      data.push(30 + Math.random() * 50);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      ctx.beginPath();
+      for (var i = 0; i < data.length; i++) {
+        var x = (i / (data.length - 1)) * canvas.width;
+        var y = canvas.height - (data[i] / 100) * canvas.height * 0.8 - 10;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.strokeStyle = '#00BCD4';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.lineTo(canvas.width, canvas.height);
+      ctx.lineTo(0, canvas.height);
+      ctx.closePath();
+      var grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      grad.addColorStop(0, 'rgba(0,188,212,0.15)');
+      grad.addColorStop(1, 'rgba(0,188,212,0)');
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      ctx.fillStyle = '#6E6E73';
+      ctx.font = '10px monospace';
+      ctx.fillText('Memory MB', 4, 14);
+      ctx.fillText(Math.round(data[data.length - 1]) + 'MB', canvas.width - 40, 14);
+
+      requestAnimationFrame(draw);
+    }
+    draw();
+  }
+
+  function initAdblockDemo() {
+    var webpage = document.getElementById('demoWebpage');
+    if (!webpage || webpage._inited) return;
+    webpage._inited = true;
+    var ads = webpage.querySelectorAll('.demo-ad');
+    var idx = 0;
+    setInterval(function () {
+      if (currentPage !== 2) return;
+      if (idx < ads.length) {
+        ads[idx].classList.add('removed');
+        idx++;
+        DriftAudio.play('btnClick');
+      } else {
+        for (var i = 0; i < ads.length; i++) ads[i].classList.remove('removed');
+        idx = 0;
+      }
+    }, 2000);
+  }
+
+  function initAIDemo() {
+    var sceneBtns = document.querySelectorAll('.ai-scene-btn');
+    for (var i = 0; i < sceneBtns.length; i++) {
+      if (sceneBtns[i]._bound) continue;
+      sceneBtns[i]._bound = true;
+      sceneBtns[i].addEventListener('click', function () {
+        var scene = this.getAttribute('data-scene');
+        switchAiScene(scene);
+        DriftAudio.play('tabSwitch');
+      });
+    }
+    switchAiScene('summarize');
+  }
+
+  function switchAiScene(scene) {
+    currentAiScene = scene;
+    var btns = document.querySelectorAll('.ai-scene-btn');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].classList.toggle('active', btns[i].getAttribute('data-scene') === scene);
+    }
+    var scenes = document.querySelectorAll('.ai-scene');
+    for (var j = 0; j < scenes.length; j++) {
+      scenes[j].classList.toggle('active', scenes[j].getAttribute('data-scene') === scene);
+    }
+    if (aiSceneTimer) clearTimeout(aiSceneTimer);
+    runAiScene(scene);
+  }
+
+  function runAiScene(scene) {
+    if (scene === 'summarize') runSummarizeScene();
+    else if (scene === 'fill') runFillScene();
+    else if (scene === 'search') runSearchScene();
+    else if (scene === 'translate') runTranslateScene();
+  }
+
+  function runSummarizeScene() {
+    var overlay = document.getElementById('aiSummarizeOverlay');
+    var text = document.getElementById('aiSummarizeText');
+    if (!overlay || !text) return;
+    overlay.classList.remove('visible');
+    text.textContent = '';
+    aiSceneTimer = setTimeout(function () {
+      overlay.classList.add('visible');
+      var summary = currentLang === 'zh'
+        ? '这篇文章探讨了Web浏览的未来趋势，包括AI集成、隐私保护和性能优化三个核心方向。'
+        : 'This article explores future trends in web browsing, including AI integration, privacy protection, and performance optimization.';
+      var i = 0;
+      function type() {
+        if (i < summary.length && currentAiScene === 'summarize') {
+          text.textContent += summary[i]; i++;
+          aiSceneTimer = setTimeout(type, 25);
+        }
+      }
+      type();
+    }, 1500);
+  }
+
+  function runFillScene() {
+    var fields = [
+      { id: 'aiFillName', val: currentLang === 'zh' ? '张三' : 'John Smith' },
+      { id: 'aiFillEmail', val: 'john@example.com' },
+      { id: 'aiFillPhone', val: currentLang === 'zh' ? '138-0000-0000' : '+1 555-0123' },
+      { id: 'aiFillAddr', val: currentLang === 'zh' ? '北京市朝阳区' : '123 Main St, NYC' }
+    ];
+    for (var i = 0; i < fields.length; i++) {
+      var el = document.getElementById(fields[i].id);
+      if (el) { el.textContent = ''; el.classList.remove('filled'); }
+    }
+    fields.forEach(function (f, idx) {
+      aiSceneTimer = setTimeout(function () {
+        var el = document.getElementById(f.id);
+        if (el && currentAiScene === 'fill') {
+          el.textContent = f.val;
+          el.classList.add('filled');
+          DriftAudio.play('btnClick');
+        }
+      }, 800 + idx * 600);
+    });
+  }
+
+  function runSearchScene() {
+    var searchText = document.getElementById('aiSearchText');
+    var results = document.getElementById('aiSearchResults');
+    if (!searchText || !results) return;
+    searchText.textContent = '';
+    results.innerHTML = '';
+    var query = currentLang === 'zh' ? 'Drift 浏览器 AI 功能' : 'Drift browser AI features';
+    var i = 0;
+    function typeQuery() {
+      if (i < query.length && currentAiScene === 'search') {
+        searchText.textContent += query[i]; i++;
+        aiSceneTimer = setTimeout(typeQuery, 60);
+      } else if (currentAiScene === 'search') {
+        showSearchResults();
+      }
+    }
+    aiSceneTimer = setTimeout(typeQuery, 500);
+  }
+
+  function showSearchResults() {
+    var results = document.getElementById('aiSearchResults');
+    if (!results) return;
+    var items = currentLang === 'zh' ? [
+      { title: 'Drift Browser - AI 驱动的浏览器', url: 'drift-browser.com/ai' },
+      { title: 'AI Chat 多模型支持 - Drift 文档', url: 'docs.drift-browser.com/ai-chat' },
+      { title: 'AI Agent 自动化操作指南', url: 'docs.drift-browser.com/ai-agent' }
+    ] : [
+      { title: 'Drift Browser - AI-Powered Browser', url: 'drift-browser.com/ai' },
+      { title: 'AI Chat Multi-Model Support - Drift Docs', url: 'docs.drift-browser.com/ai-chat' },
+      { title: 'AI Agent Automation Guide', url: 'docs.drift-browser.com/ai-agent' }
+    ];
+    results.innerHTML = '';
+    items.forEach(function (item, idx) {
+      var div = document.createElement('div');
+      div.className = 'ai-search-result';
+      div.innerHTML = '<div class="ai-search-result-title">' + item.title + '</div><div class="ai-search-result-url">' + item.url + '</div>';
+      results.appendChild(div);
+      setTimeout(function () {
+        if (currentAiScene === 'search') div.classList.add('visible');
+      }, 300 + idx * 300);
+    });
+  }
+
+  function runTranslateScene() {
+    var result = document.getElementById('aiTranslateResult');
+    if (!result) return;
+    result.innerHTML = '';
+    var translations = [
+      { en: 'The quick brown fox jumps over the lazy dog.', zh: '敏捷的棕色狐狸跳过了懒狗。' },
+      { en: 'Artificial intelligence is transforming how we browse the web.', zh: '人工智能正在改变我们浏览网页的方式。' },
+      { en: 'Drift Browser brings AI directly into your workflow.', zh: 'Drift 浏览器将 AI 直接融入你的工作流。' }
+    ];
+    translations.forEach(function (t, idx) {
+      aiSceneTimer = setTimeout(function () {
+        if (currentAiScene !== 'translate' || !result) return;
+        var line = document.createElement('div');
+        line.className = 'ai-translate-line zh';
+        line.textContent = t.zh;
+        result.appendChild(line);
+        setTimeout(function () { line.classList.add('visible'); }, 50);
+        DriftAudio.play('btnClick');
+      }, 800 + idx * 800);
+    });
+  }
+
+  function initPluginsCarousel() {
+    var cards = document.querySelectorAll('.plugin-card');
+    var dotsContainer = document.getElementById('plugDots');
+    if (dotsContainer.children.length === 0) {
+      for (var i = 0; i < cards.length; i++) {
+        var dot = document.createElement('div');
+        dot.className = 'plug-dot' + (i === 0 ? ' active' : '');
+        dot.setAttribute('data-index', i);
+        dot.addEventListener('click', function () { goToPlugin(parseInt(this.getAttribute('data-index'))); });
+        dotsContainer.appendChild(dot);
+      }
+    }
+  }
+
+  function goToPlugin(index) {
+    var cards = document.querySelectorAll('.plugin-card');
+    var dots = document.querySelectorAll('.plug-dot');
+    if (index < 0 || index >= cards.length || index === currentPlugin) return;
+    DriftAudio.play('tabSwitch');
+
+    cards[currentPlugin].classList.remove('active');
+    cards[currentPlugin].classList.add('exit-left');
+    setTimeout(function () { cards[currentPlugin].classList.remove('exit-left'); }, 600);
+
+    cards[index].classList.add('active');
+    dots[currentPlugin].classList.remove('active');
+    dots[index].classList.add('active');
+    currentPlugin = index;
+  }
+
+  document.getElementById('plugPrev').addEventListener('click', function () { goToPlugin(currentPlugin - 1); });
+  document.getElementById('plugNext').addEventListener('click', function () { goToPlugin(currentPlugin + 1); });
 
   function initNeuralCanvas() {
     var canvas = document.getElementById('neuralCanvas');
@@ -954,10 +921,7 @@
     var ctx = canvas.getContext('2d');
     var nodes = [];
 
-    function resize() {
-      canvas.width = canvas.parentElement.clientWidth;
-      canvas.height = canvas.parentElement.clientHeight;
-    }
+    function resize() { canvas.width = canvas.parentElement.clientWidth; canvas.height = canvas.parentElement.clientHeight; }
     resize();
     window.addEventListener('resize', resize);
 
@@ -965,28 +929,24 @@
       nodes.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        vx: (Math.random() - 0.5) * 0.3,
-        vy: (Math.random() - 0.5) * 0.3,
-        r: 2 + Math.random() * 2
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: (Math.random() - 0.5) * 0.4,
+        r: 1.5 + Math.random() * 2
       });
     }
 
     function draw() {
-      if (currentPage !== 2) { requestAnimationFrame(draw); return; }
+      if (currentPage !== 3) { requestAnimationFrame(draw); return; }
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-
       for (var i = 0; i < nodes.length; i++) {
         var n = nodes[i];
-        n.x += n.vx;
-        n.y += n.vy;
+        n.x += n.vx; n.y += n.vy;
         if (n.x < 0 || n.x > canvas.width) n.vx *= -1;
         if (n.y < 0 || n.y > canvas.height) n.vy *= -1;
-
         ctx.beginPath();
         ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(79,195,247,0.15)';
+        ctx.fillStyle = 'rgba(0,188,212,0.15)';
         ctx.fill();
-
         for (var j = i + 1; j < nodes.length; j++) {
           var dx = n.x - nodes[j].x;
           var dy = n.y - nodes[j].y;
@@ -995,7 +955,7 @@
             ctx.beginPath();
             ctx.moveTo(n.x, n.y);
             ctx.lineTo(nodes[j].x, nodes[j].y);
-            ctx.strokeStyle = 'rgba(79,195,247,' + (0.06 * (1 - d / 150)) + ')';
+            ctx.strokeStyle = 'rgba(0,188,212,' + (0.06 * (1 - d / 150)) + ')';
             ctx.lineWidth = 0.5;
             ctx.stroke();
           }
@@ -1006,90 +966,39 @@
     draw();
   }
 
-  function initEnergyCanvas() {
-    var canvas = document.getElementById('energyCanvas');
+  function initDownloadCanvas() {
+    var canvas = document.getElementById('downloadCanvas');
     if (!canvas) return;
     var ctx = canvas.getContext('2d');
     var particles = [];
 
-    function resize() {
-      canvas.width = canvas.parentElement.clientWidth;
-      canvas.height = canvas.parentElement.clientHeight;
-    }
+    function resize() { canvas.width = canvas.parentElement.clientWidth; canvas.height = canvas.parentElement.clientHeight; }
     resize();
     window.addEventListener('resize', resize);
 
     for (var i = 0; i < 60; i++) {
-      var angle = Math.random() * Math.PI * 2;
-      var dist = 80 + Math.random() * 120;
       particles.push({
-        angle: angle,
-        dist: dist,
-        speed: 0.005 + Math.random() * 0.01,
-        r: 1 + Math.random() * 1.5,
-        o: 0.1 + Math.random() * 0.3
-      });
-    }
-
-    function draw() {
-      if (currentPage !== 4) { requestAnimationFrame(draw); return; }
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      var cx = canvas.width / 2;
-      var cy = canvas.height / 2 - 40;
-
-      for (var i = 0; i < particles.length; i++) {
-        var p = particles[i];
-        p.angle += p.speed;
-        var x = cx + Math.cos(p.angle) * p.dist;
-        var y = cy + Math.sin(p.angle) * p.dist * 0.6;
-
-        ctx.beginPath();
-        ctx.arc(x, y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(79,195,247,' + p.o + ')';
-        ctx.fill();
-      }
-      requestAnimationFrame(draw);
-    }
-    draw();
-  }
-
-  function initTimelineCanvas() {
-    var canvas = document.getElementById('timelineCanvas');
-    if (!canvas) return;
-    var ctx = canvas.getContext('2d');
-    var particles = [];
-
-    function resize() {
-      canvas.width = canvas.parentElement.clientWidth;
-      canvas.height = canvas.parentElement.clientHeight;
-    }
-    resize();
-    window.addEventListener('resize', resize);
-
-    for (var i = 0; i < 30; i++) {
-      particles.push({
-        x: canvas.width * 0.15 + Math.random() * 4,
+        x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        vy: 0.2 + Math.random() * 0.5,
-        r: 1 + Math.random() * 1.5,
-        o: 0.1 + Math.random() * 0.2
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: -0.2 - Math.random() * 0.5,
+        r: 1 + Math.random() * 2,
+        o: 0.05 + Math.random() * 0.15
       });
     }
 
     function draw() {
       if (currentPage !== 5) { requestAnimationFrame(draw); return; }
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-
       for (var i = 0; i < particles.length; i++) {
         var p = particles[i];
+        p.x += p.vx;
         p.y += p.vy;
-        if (p.y > canvas.height) {
-          p.y = 0;
-          p.x = canvas.width * 0.15 + Math.random() * 4;
-        }
+        if (p.y < -10) { p.y = canvas.height + 10; p.x = Math.random() * canvas.width; }
+        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(79,195,247,' + p.o + ')';
+        ctx.fillStyle = 'rgba(0,188,212,' + p.o + ')';
         ctx.fill();
       }
       requestAnimationFrame(draw);
@@ -1097,47 +1006,69 @@
     draw();
   }
 
-  function runLoader() {
-    var progress = document.getElementById('loadProgress');
-    var loader = document.getElementById('loader');
-    var val = 0;
-    var interval = setInterval(function () {
-      val += Math.random() * 15 + 5;
-      if (val >= 100) {
-        val = 100;
-        clearInterval(interval);
-        setTimeout(function () {
-          loader.classList.add('done');
-          setTimeout(function () {
-            loader.style.display = 'none';
-          }, 600);
-        }, 200);
+  function initLoader() {
+    var canvas = document.getElementById('loadCanvas');
+    var ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    var progress = 0;
+    var cx = canvas.width / 2;
+    var cy = canvas.height / 2;
+
+    function draw() {
+      progress += 0.012;
+      if (progress > 1) progress = 1;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      var liquidH = canvas.height * progress;
+      var grad = ctx.createLinearGradient(0, canvas.height - liquidH, 0, canvas.height);
+      grad.addColorStop(0, 'rgba(0,188,212,0.2)');
+      grad.addColorStop(0.5, 'rgba(0,230,118,0.12)');
+      grad.addColorStop(1, 'rgba(68,138,255,0.08)');
+
+      ctx.beginPath();
+      ctx.moveTo(0, canvas.height);
+      for (var x = 0; x <= canvas.width; x += 4) {
+        var waveY = canvas.height - liquidH + Math.sin(x * 0.01 + progress * 10) * 8;
+        ctx.lineTo(x, waveY);
       }
-      progress.style.width = val + '%';
-    }, 120);
+      ctx.lineTo(canvas.width, canvas.height);
+      ctx.closePath();
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      ctx.fillStyle = '#F5F5F7';
+      ctx.font = '600 16px Inter, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Drift Browser', cx, cy);
+
+      ctx.fillStyle = '#86868B';
+      ctx.font = '12px Inter, sans-serif';
+      ctx.fillText(Math.round(progress * 100) + '%', cx, cy + 28);
+
+      if (progress < 1) {
+        requestAnimationFrame(draw);
+      } else {
+        setTimeout(function () {
+          document.getElementById('loader').classList.add('done');
+          setTimeout(function () { document.getElementById('loader').style.display = 'none'; }, 1000);
+        }, 400);
+      }
+    }
+    draw();
   }
 
-  document.addEventListener('keydown', function (e) {
-    if (e.ctrlKey || e.metaKey) return;
-    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-      var idx = tabOrder.indexOf(currentPage);
-      if (idx > 0) goToPage(tabOrder[idx - 1]);
-    } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-      var idx2 = tabOrder.indexOf(currentPage);
-      if (idx2 < tabOrder.length - 1) goToPage(tabOrder[idx2 + 1]);
-    }
-  });
-
-  runLoader();
+  initLoader();
   renderTabs();
   updateAddrUrl();
   applyLang();
+  init3DTilt();
+  initGlossEffect();
 
   setTimeout(function () {
-    initHeroCanvas();
+    initInkCanvas();
     initNeuralCanvas();
-    initEnergyCanvas();
-    initTimelineCanvas();
+    initDownloadCanvas();
     triggerPageAnimations(0);
   }, 500);
 

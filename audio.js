@@ -30,7 +30,7 @@
     var gain = ctx.createGain();
     osc.type = type || 'sine';
     osc.frequency.value = freq;
-    gain.gain.value = gainVal || 0.1;
+    gain.gain.value = gainVal || 0.04;
     if (rampTime) {
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + (duration || 0.3));
     }
@@ -51,10 +51,10 @@
     var source = ctx.createBufferSource();
     source.buffer = buffer;
     var gain = ctx.createGain();
-    gain.gain.value = gainVal || 0.03;
+    gain.gain.value = gainVal || 0.02;
     var filter = ctx.createBiquadFilter();
     filter.type = filterType || 'lowpass';
-    filter.frequency.value = filterFreq || 800;
+    filter.frequency.value = filterFreq || 600;
     source.connect(filter);
     filter.connect(gain);
     gain.connect(ctx.destination);
@@ -64,54 +64,50 @@
 
   var sounds = {
     tabSwitch: function () {
-      createOsc(880, 'sine', 0.12, 0.06, true);
+      createOsc(660, 'sine', 0.1, 0.03, true);
       setTimeout(function () {
-        createOsc(1100, 'sine', 0.08, 0.04, true);
-      }, 40);
+        createOsc(880, 'sine', 0.07, 0.02, true);
+      }, 50);
     },
 
     tabClose: function () {
-      createNoise(0.2, 0.04, 1200, 'bandpass');
-      createOsc(440, 'sine', 0.25, 0.03, true);
+      createNoise(0.15, 0.02, 1000, 'bandpass');
+      createOsc(330, 'sine', 0.2, 0.02, true);
     },
 
     btnHover: function () {
-      createOsc(1200, 'sine', 0.06, 0.02, true);
+      createOsc(1000, 'sine', 0.04, 0.01, true);
     },
 
     btnClick: function () {
-      createOsc(660, 'sine', 0.08, 0.08, true);
+      createOsc(520, 'sine', 0.06, 0.04, true);
       setTimeout(function () {
-        createOsc(990, 'sine', 0.06, 0.05, true);
-      }, 30);
+        createOsc(780, 'sine', 0.05, 0.025, true);
+      }, 40);
     },
 
     transitionStart: function () {
-      createNoise(0.4, 0.05, 600, 'lowpass');
-      createOsc(220, 'sine', 0.5, 0.04, true);
+      createNoise(0.5, 0.025, 400, 'lowpass');
+      createOsc(180, 'sine', 0.6, 0.02, true);
       setTimeout(function () {
-        createOsc(330, 'sine', 0.3, 0.03, true);
-      }, 100);
+        createOsc(260, 'sine', 0.35, 0.015, true);
+      }, 120);
     },
 
     transitionEnd: function () {
-      createOsc(550, 'sine', 0.3, 0.05, true);
-      createNoise(0.15, 0.02, 2000, 'highpass');
+      createOsc(440, 'sine', 0.25, 0.025, true);
+      createNoise(0.1, 0.01, 1800, 'highpass');
     },
 
     contextMenu: function () {
-      createOsc(700, 'sine', 0.06, 0.04, true);
-    },
-
-    sphereRotate: function () {
-      createNoise(0.08, 0.01, 3000, 'highpass');
+      createOsc(580, 'sine', 0.05, 0.02, true);
     },
 
     engineStart: function () {
-      var o = createOsc(80, 'sawtooth', 1.5, 0.06, false);
-      o.osc.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 1.0);
-      o.gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.5);
-      createNoise(1.0, 0.04, 400, 'lowpass');
+      var o = createOsc(60, 'sawtooth', 1.2, 0.03, false);
+      o.osc.frequency.exponentialRampToValueAtTime(160, ctx.currentTime + 0.8);
+      o.gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.2);
+      createNoise(0.8, 0.02, 300, 'lowpass');
     }
   };
 

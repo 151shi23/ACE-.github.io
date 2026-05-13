@@ -4,307 +4,406 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Drift Browser</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect rx='8' width='32' height='32' fill='%234FC3F7'/><text x='7' y='23' font-size='18' font-weight='800' fill='%23060810'>D</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect rx='8' width='32' height='32' fill='%2300BCD4'/><text x='7' y='23' font-size='18' font-weight='800' fill='%23000'>D</text></svg>">
 </head>
 <body>
 
   <div id="loader">
-    <div id="loadBar"><div id="loadProgress"></div></div>
-    <div id="loadLabel">Drift Browser</div>
+    <canvas id="loadCanvas"></canvas>
   </div>
 
-  <div id="browserFrame">
-    <div id="tabBar">
-      <div id="tabStrip"></div>
-      <button id="btnNewTab" title="New Tab">
-        <svg width="14" height="14" viewBox="0 0 14 14"><line x1="7" y1="2" x2="7" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="2" y1="7" x2="12" y2="7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-      </button>
-      <div id="winControls">
-        <button class="win-btn" id="btnMin">
-          <svg width="12" height="12" viewBox="0 0 12 12"><line x1="2" y1="6" x2="10" y2="6" stroke="currentColor" stroke-width="1.2"/></svg>
+  <nav id="tabBar" class="glass-frame" data-gloss>
+    <div id="tabStrip"></div>
+  </nav>
+  <div id="addressBar" class="glass-frame" data-gloss>
+    <svg class="addr-lock" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+    <span id="addrUrl">drift://home</span>
+    <button id="langToggle" data-i18n="lang.toggle">EN</button>
+  </div>
+
+  <main id="pageContainer">
+
+    <section class="page page-hero dark-page active" data-index="0" data-url="drift://home">
+      <canvas id="inkCanvas"></canvas>
+      <div class="hero-content">
+        <h1 class="hero-title" data-tilt>DRIFT</h1>
+        <p class="hero-subtitle" data-i18n="hero.subtitle">AI 驱动的新一代桌面浏览器</p>
+        <div class="hero-actions">
+          <a href="https://github.com/151shi23/drift-browser/releases" class="btn-primary hover-lift hover-glow" data-tilt data-i18n="hero.download">下载 Drift</a>
+          <a href="https://github.com/151shi23/drift-browser" class="btn-ghost hover-lift" data-i18n="hero.github">GitHub</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="page page-poster dark-page" data-index="1" data-url="drift://poster">
+      <div class="poster-layout">
+        <div class="poster-frame glass-frame" data-gloss data-tilt>
+          <img id="posterImg" src="poster/index.png" alt="Drift Browser" onerror="this.style.display='none';document.getElementById('posterPlaceholder').style.display='flex'">
+          <div id="posterPlaceholder" class="poster-placeholder">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+            <span data-i18n="poster.placeholder"></span>
+          </div>
+        </div>
+        <div class="poster-text">
+          <h2 data-i18n="poster.title">重新定义浏览</h2>
+          <p data-i18n="poster.desc">Drift 不仅仅是一个浏览器，它是你数字世界的智能伙伴。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="page page-features light-page" data-index="2" data-url="drift://features">
+      <div class="feature-carousel" id="featureCarousel">
+
+        <div class="feature-slide layout-a" data-feature="ai">
+          <div class="feature-demo" id="demoAI" data-tilt>
+            <div class="demo-screen hover-sheen">
+              <div class="demo-chat">
+                <div class="demo-msg demo-user" data-i18n="demo.ai.q">总结这个页面的要点</div>
+                <div class="demo-msg demo-ai" id="demoAiReply"></div>
+              </div>
+              <input class="demo-input" data-i18n-placeholder="demo.ai.input" placeholder="试试输入问题..." id="demoAiInput">
+            </div>
+          </div>
+          <div class="feature-info">
+            <span class="feature-num">01</span>
+            <h3 data-i18n="features.ai.title">AI 集成</h3>
+            <p data-i18n="features.ai.desc">内置 AI Chat 与 AI Agent，支持多模型配置，智能对话与自动化操作</p>
+          </div>
+        </div>
+
+        <div class="feature-slide layout-b" data-feature="plugin">
+          <div class="feature-demo" id="demoPlugin" data-tilt>
+            <div class="demo-screen hover-sheen">
+              <div class="demo-drag-area">
+                <div class="demo-drag-item" draggable="true" data-i18n="demo.plugin.item">🌐 English i18n</div>
+                <div class="demo-drag-item" draggable="true" data-i18n="demo.plugin.item2">🎨 个性化定制</div>
+                <div class="demo-drop-zone" data-i18n="demo.plugin.drop">拖拽到此处安装</div>
+              </div>
+            </div>
+          </div>
+          <div class="feature-info">
+            <span class="feature-num">02</span>
+            <h3 data-i18n="features.plugin.title">插件系统</h3>
+            <p data-i18n="features.plugin.desc">侧载插件架构，无需重新打包即可扩展浏览器功能</p>
+          </div>
+        </div>
+
+        <div class="feature-slide layout-c" data-feature="cloud">
+          <div class="feature-demo" id="demoCloud" data-tilt>
+            <div class="demo-screen hover-sheen">
+              <div class="demo-file-list">
+                <div class="demo-file"><span>📄</span> report.pdf <span class="demo-progress" style="width:80%"></span></div>
+                <div class="demo-file"><span>🖼️</span> photo.png <span class="demo-progress" style="width:45%"></span></div>
+                <div class="demo-file"><span>📝</span> notes.md <span class="demo-progress done"></span></div>
+              </div>
+            </div>
+          </div>
+          <div class="feature-info">
+            <span class="feature-num">03</span>
+            <h3 data-i18n="features.cloud.title">云盘</h3>
+            <p data-i18n="features.cloud.desc">内置云存储，文件上传下载、在线预览、全局搜索</p>
+          </div>
+        </div>
+
+        <div class="feature-slide layout-d" data-feature="perf">
+          <div class="feature-demo" id="demoPerf" data-tilt>
+            <div class="demo-screen hover-sheen">
+              <canvas id="perfChart" width="280" height="160"></canvas>
+            </div>
+          </div>
+          <div class="feature-info">
+            <span class="feature-num">04</span>
+            <h3 data-i18n="features.perf.title">性能优化</h3>
+            <p data-i18n="features.perf.desc">自适应性能调节器，智能冻结后台标签页，内存占用更少</p>
+          </div>
+        </div>
+
+        <div class="feature-slide layout-e" data-feature="tabs">
+          <div class="feature-demo" id="demoTabs" data-tilt>
+            <div class="demo-screen hover-sheen">
+              <div class="demo-tab-bar" id="demoTabBar">
+                <div class="demo-tab" draggable="true">首页</div>
+                <div class="demo-tab" draggable="true">GitHub</div>
+                <div class="demo-tab" draggable="true">文档</div>
+                <div class="demo-tab active" draggable="true">Drift</div>
+              </div>
+            </div>
+          </div>
+          <div class="feature-info">
+            <span class="feature-num">05</span>
+            <h3 data-i18n="features.tabs.title">标签管理</h3>
+            <p data-i18n="features.tabs.desc">标签分组、垂直标签栏、分屏视图，多标签井然有序</p>
+          </div>
+        </div>
+
+        <div class="feature-slide layout-f" data-feature="adblock">
+          <div class="feature-demo" id="demoAdblock" data-tilt>
+            <div class="demo-screen hover-sheen">
+              <div class="demo-webpage" id="demoWebpage">
+                <div class="demo-ad">📢 广告</div>
+                <div class="demo-content-line"></div>
+                <div class="demo-ad">📢 赞助</div>
+                <div class="demo-content-line short"></div>
+                <div class="demo-ad">📢 推广</div>
+                <div class="demo-content-line"></div>
+              </div>
+            </div>
+          </div>
+          <div class="feature-info">
+            <span class="feature-num">06</span>
+            <h3 data-i18n="features.adblock.title">广告拦截</h3>
+            <p data-i18n="features.adblock.desc">内置广告和追踪器过滤，清爽浏览，隐私保护</p>
+          </div>
+        </div>
+      </div>
+      <div class="feature-nav">
+        <button class="feat-prev hover-lift" id="featPrev" data-tilt>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
         </button>
-        <button class="win-btn" id="btnMax">
-          <svg width="12" height="12" viewBox="0 0 12 12"><rect x="2" y="2" width="8" height="8" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
-        </button>
-        <button class="win-btn win-close" id="btnClose">
-          <svg width="12" height="12" viewBox="0 0 12 12"><line x1="2" y1="2" x2="10" y2="10" stroke="currentColor" stroke-width="1.2"/><line x1="10" y1="2" x2="2" y2="10" stroke="currentColor" stroke-width="1.2"/></svg>
+        <div class="feat-dots" id="featDots"></div>
+        <button class="feat-next hover-lift" id="featNext" data-tilt>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 6 15 12 9 18"/></svg>
         </button>
       </div>
-    </div>
-    <div id="addressBar">
-      <svg class="addr-lock" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-      <span id="addrUrl">drift://home</span>
-      <button id="langToggle" data-i18n="lang.toggle">EN</button>
-    </div>
-    <div id="pageContainer">
+    </section>
 
-      <section class="page page-hero active" data-index="0" data-url="drift://home">
-        <canvas id="heroCanvas"></canvas>
-        <div class="hero-content">
-          <div class="hero-badge" data-i18n="hero.badge">v2.33 · Windows</div>
-          <h1 class="hero-title">DRIFT</h1>
-          <p class="hero-subtitle" data-i18n="hero.subtitle">AI 驱动的新一代桌面浏览器</p>
-          <div class="hero-actions">
-            <a href="https://github.com/151shi23/drift-browser/releases" class="btn-primary" data-i18n="hero.download">下载 Drift</a>
-            <a href="https://github.com/151shi23/drift-browser" class="btn-secondary" data-i18n="hero.github">GitHub</a>
+    <section class="page page-ai dark-page" data-index="3" data-url="drift://ai">
+      <canvas id="neuralCanvas"></canvas>
+      <div class="page-inner">
+        <h2 class="section-title" data-i18n="ai.title">AI 驱动</h2>
+        <p class="section-desc" data-i18n="ai.desc">不只是浏览器，更是你的智能助手</p>
+        <div class="ai-browser-demo" id="aiBrowserDemo">
+          <div class="ai-browser-frame glass-frame" data-gloss data-tilt>
+            <div class="ai-browser-bar">
+              <div class="ai-browser-dots">
+                <span class="dot red"></span>
+                <span class="dot yellow"></span>
+                <span class="dot green"></span>
+              </div>
+              <div class="ai-browser-url" id="aiBrowserUrl">drift://ai-demo</div>
+              <div class="ai-browser-badge" id="aiBadge">AI</div>
+            </div>
+            <div class="ai-browser-content" id="aiBrowserContent">
+              <div class="ai-scene" data-scene="summarize">
+                <div class="ai-scene-page">
+                  <div class="ai-page-title">The Future of Web Browsing</div>
+                  <div class="ai-page-line"></div>
+                  <div class="ai-page-line short"></div>
+                  <div class="ai-page-line"></div>
+                  <div class="ai-page-line short"></div>
+                  <div class="ai-page-line"></div>
+                </div>
+                <div class="ai-scene-overlay" id="aiSummarizeOverlay">
+                  <div class="ai-overlay-icon">✨</div>
+                  <div class="ai-overlay-text" id="aiSummarizeText"></div>
+                </div>
+              </div>
+              <div class="ai-scene" data-scene="fill">
+                <div class="ai-scene-form">
+                  <div class="ai-form-row"><label>Name</label><div class="ai-form-input" id="aiFillName"></div></div>
+                  <div class="ai-form-row"><label>Email</label><div class="ai-form-input" id="aiFillEmail"></div></div>
+                  <div class="ai-form-row"><label>Phone</label><div class="ai-form-input" id="aiFillPhone"></div></div>
+                  <div class="ai-form-row"><label>Address</label><div class="ai-form-input" id="aiFillAddr"></div></div>
+                </div>
+              </div>
+              <div class="ai-scene" data-scene="search">
+                <div class="ai-search-bar">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  <span id="aiSearchText"></span>
+                  <span class="ai-search-cursor">|</span>
+                </div>
+                <div class="ai-search-results" id="aiSearchResults"></div>
+              </div>
+              <div class="ai-scene" data-scene="translate">
+                <div class="ai-translate-pane">
+                  <div class="ai-translate-original">
+                    <div class="ai-translate-line en">The quick brown fox jumps over the lazy dog.</div>
+                    <div class="ai-translate-line en">Artificial intelligence is transforming how we browse the web.</div>
+                    <div class="ai-translate-line en">Drift Browser brings AI directly into your workflow.</div>
+                  </div>
+                  <div class="ai-translate-translated" id="aiTranslateResult">
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </section>
-
-      <section class="page page-features" data-index="1" data-url="drift://features">
-        <canvas id="sphereCanvas"></canvas>
-        <div class="page-inner">
-          <h2 class="section-title" data-i18n="features.title">核心特性</h2>
-          <p class="section-desc" data-i18n="features.desc">为现代浏览而生的全能工具</p>
-          <div class="features-hint" data-i18n="features.hint">拖拽旋转球体 · 点击图标查看详情</div>
-          <div id="featureDetail" class="feature-detail hidden">
-            <button class="fd-close" id="fdClose">
-              <svg width="16" height="16" viewBox="0 0 16 16"><line x1="3" y1="3" x2="13" y2="13" stroke="currentColor" stroke-width="1.5"/><line x1="13" y1="3" x2="3" y2="13" stroke="currentColor" stroke-width="1.5"/></svg>
+          <div class="ai-scene-nav">
+            <button class="ai-scene-btn active hover-lift" data-scene="summarize" data-tilt>
+              <span class="ai-scene-icon">📝</span>
+              <span data-i18n="ai.summarize">自动总结</span>
             </button>
-            <div class="fd-icon" id="fdIcon"></div>
-            <h3 id="fdTitle"></h3>
-            <p id="fdDesc"></p>
-          </div>
-        </div>
-      </section>
-
-      <section class="page page-ai" data-index="2" data-url="drift://ai">
-        <canvas id="neuralCanvas"></canvas>
-        <div class="page-inner">
-          <h2 class="section-title" data-i18n="ai.title">AI 驱动</h2>
-          <p class="section-desc" data-i18n="ai.desc">不只是浏览器，更是你的智能助手</p>
-          <div class="ai-layout">
-            <div class="ai-chat-mock">
-              <div class="chat-header">
-                <span class="chat-dot"></span>
-                <span data-i18n="ai.chatTitle">AI Chat</span>
-              </div>
-              <div class="chat-messages" id="chatMessages">
-                <div class="chat-msg chat-user" id="chatUserMsg" data-i18n="ai.userMsg">帮我总结这个页面的要点</div>
-                <div class="chat-msg chat-ai" id="chatAiMsg"></div>
-              </div>
-              <div class="chat-input">
-                <span class="chat-cursor" id="chatCursor">|</span>
-                <span data-i18n="ai.inputPlaceholder">输入消息...</span>
-              </div>
-            </div>
-            <div class="ai-info">
-              <div class="ai-feature-item" data-delay="0">
-                <div class="ai-feature-num">01</div>
-                <div>
-                  <h4 data-i18n="ai.chat.title">AI Chat</h4>
-                  <p data-i18n="ai.chat.desc">与网页内容对话，智能总结、翻译、分析</p>
-                </div>
-              </div>
-              <div class="ai-feature-item" data-delay="1">
-                <div class="ai-feature-num">02</div>
-                <div>
-                  <h4 data-i18n="ai.agent.title">AI Agent</h4>
-                  <p data-i18n="ai.agent.desc">自动化浏览器操作，执行复杂任务流程</p>
-                </div>
-              </div>
-              <div class="ai-feature-item" data-delay="2">
-                <div class="ai-feature-num">03</div>
-                <div>
-                  <h4 data-i18n="ai.models.title">多模型支持</h4>
-                  <p data-i18n="ai.models.desc">OpenAI · Claude · Gemini · 本地模型，自由切换</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="page page-plugins" data-index="3" data-url="drift://plugins">
-        <div class="page-inner">
-          <h2 class="section-title" data-i18n="plugins.title">插件生态</h2>
-          <p class="section-desc" data-i18n="plugins.desc">无限扩展，打造你的专属浏览器</p>
-          <div class="plugins-grid" id="pluginsGrid">
-            <div class="plugin-card" draggable="true" data-plugin="i18n">
-              <div class="plugin-icon" style="background:linear-gradient(135deg,#4FC3F7,#0288D1)">
-                <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
-              </div>
-              <h4 data-i18n="plugins.i18n.title">English i18n</h4>
-              <p data-i18n="plugins.i18n.desc">一键切换浏览器界面为英文，完整的语言包覆盖</p>
-              <span class="plugin-tag" data-i18n="plugins.tag.i18n">i18n</span>
-            </div>
-            <div class="plugin-card" draggable="true" data-plugin="github">
-              <div class="plugin-icon" style="background:linear-gradient(135deg,#FF6D00,#E65100)">
-                <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg>
-              </div>
-              <h4 data-i18n="plugins.github.title">GitHub 中文翻译</h4>
-              <p data-i18n="plugins.github.desc">自动翻译 GitHub 页面 UI 文本和状态标签</p>
-              <span class="plugin-tag" data-i18n="plugins.tag.github">ui</span>
-            </div>
-            <div class="plugin-card" draggable="true" data-plugin="custom">
-              <div class="plugin-icon" style="background:linear-gradient(135deg,#FFB300,#FF8F00)">
-                <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-              </div>
-              <h4 data-i18n="plugins.custom.title">个性化定制</h4>
-              <p data-i18n="plugins.custom.desc">自定义背景、颜色、布局、CSS，5 个预设主题</p>
-              <span class="plugin-tag" data-i18n="plugins.tag.custom">ui</span>
-            </div>
-          </div>
-          <div class="plugins-sdk">
-            <div class="sdk-label" data-i18n="plugins.sdk.label">DriftPluginSDK</div>
-            <pre class="sdk-code"><code>var sdk = window.DriftPluginSDK.register(__pluginMeta);
-
-sdk.i18n.register('en', translations);
-sdk.tabs.create(url);
-sdk.webview.onPageLoad(function(url, webview) {
-  webview.executeJavaScript(injectCode);
-});
-await sdk.storage.set('key', value);
-sdk.messaging.send('target-plugin-id', data);</code></pre>
-          </div>
-        </div>
-      </section>
-
-      <section class="page page-download" data-index="4" data-url="drift://download">
-        <canvas id="energyCanvas"></canvas>
-        <div class="page-inner">
-          <h2 class="section-title" data-i18n="download.title">获取 Drift</h2>
-          <p class="section-desc" data-i18n="download.desc">免费 · 开源 · 为 Windows 而生</p>
-          <div class="download-engine" id="downloadEngine">
-            <button class="engine-btn" id="engineBtn">
-              <div class="engine-idle" data-i18n="download.btn">下载 Drift</div>
-              <div class="engine-active">
-                <div class="gear gear-1">
-                  <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="14" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="20" cy="20" r="4" fill="currentColor"/></svg>
-                </div>
-                <div class="gear gear-2">
-                  <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="10" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="20" cy="20" r="3" fill="currentColor"/></svg>
-                </div>
-                <div class="engine-ring"></div>
-                <div class="engine-ring ring-2"></div>
-              </div>
+            <button class="ai-scene-btn hover-lift" data-scene="fill" data-tilt>
+              <span class="ai-scene-icon">📋</span>
+              <span data-i18n="ai.fill">自动填表</span>
+            </button>
+            <button class="ai-scene-btn hover-lift" data-scene="search" data-tilt>
+              <span class="ai-scene-icon">🔍</span>
+              <span data-i18n="ai.search">自动搜索</span>
+            </button>
+            <button class="ai-scene-btn hover-lift" data-scene="translate" data-tilt>
+              <span class="ai-scene-icon">🌐</span>
+              <span data-i18n="ai.translate">自动翻译</span>
             </button>
           </div>
-          <div class="download-cards">
-            <a href="https://github.com/151shi23/drift-browser/releases" class="download-card">
-              <h3 data-i18n="download.installer.title">安装版</h3>
-              <p>Drift-Setup-x.x.x.exe</p>
-              <span class="dl-tag" data-i18n="download.installer.tag">推荐大多数用户</span>
-            </a>
-            <a href="https://github.com/151shi23/drift-browser/releases" class="download-card">
-              <h3 data-i18n="download.portable.title">便携版</h3>
-              <p>Drift-x.x.x.exe</p>
-              <span class="dl-tag" data-i18n="download.portable.tag">免安装，直接运行</span>
-            </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="page page-plugins light-page" data-index="4" data-url="drift://plugins">
+      <div class="plugins-showcase" id="pluginsShowcase">
+        <div class="plugin-card active" data-plugin="i18n">
+          <div class="pc-visual">
+            <div class="pc-icon-wrap" style="background:linear-gradient(135deg,#00BCD4,#0097A7)" data-tilt>
+              <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" width="80" height="80"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+            </div>
           </div>
-          <div class="download-meta">
-            <div class="meta-item"><span class="meta-label" data-i18n="download.version">版本</span><span class="meta-value">2.33.0</span></div>
-            <div class="meta-item"><span class="meta-label" data-i18n="download.platform">平台</span><span class="meta-value">Windows x64</span></div>
-            <div class="meta-item"><span class="meta-label" data-i18n="download.license">协议</span><span class="meta-value">MIT</span></div>
-            <div class="meta-item"><span class="meta-label" data-i18n="download.engine">内核</span><span class="meta-value">Chromium 130</span></div>
+          <div class="pc-info">
+            <span class="pc-label" data-i18n="plugins.label.plugin">插件</span>
+            <h3 data-i18n="plugins.i18n.title">English i18n</h3>
+            <p data-i18n="plugins.i18n.desc">一键切换浏览器界面为英文，完整的语言包覆盖</p>
+            <pre class="ps-code"><code>sdk.i18n.register('en', translations);</code></pre>
           </div>
         </div>
-      </section>
+        <div class="plugin-card" data-plugin="github">
+          <div class="pc-visual">
+            <div class="pc-icon-wrap" style="background:linear-gradient(135deg,#00E676,#00C853)" data-tilt>
+              <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" width="80" height="80"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg>
+            </div>
+          </div>
+          <div class="pc-info">
+            <span class="pc-label" data-i18n="plugins.label.plugin">插件</span>
+            <h3 data-i18n="plugins.github.title">GitHub 中文翻译</h3>
+            <p data-i18n="plugins.github.desc">自动翻译 GitHub 页面 UI 文本和状态标签</p>
+            <pre class="ps-code"><code>sdk.webview.onPageLoad(function(url, wv) {
+  wv.executeJavaScript(translateCode);
+});</code></pre>
+          </div>
+        </div>
+        <div class="plugin-card" data-plugin="custom">
+          <div class="pc-visual">
+            <div class="pc-icon-wrap" style="background:linear-gradient(135deg,#448AFF,#2962FF)" data-tilt>
+              <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" width="80" height="80"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            </div>
+          </div>
+          <div class="pc-info">
+            <span class="pc-label" data-i18n="plugins.label.plugin">插件</span>
+            <h3 data-i18n="plugins.custom.title">个性化定制</h3>
+            <p data-i18n="plugins.custom.desc">自定义背景、颜色、布局、CSS，5 个预设主题</p>
+            <pre class="ps-code"><code>await sdk.storage.set('theme', 'midnight');</code></pre>
+          </div>
+        </div>
+      </div>
+      <div class="plugins-nav">
+        <button class="plug-prev hover-lift" id="plugPrev" data-tilt>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div class="plug-dots" id="plugDots"></div>
+        <button class="plug-next hover-lift" id="plugNext" data-tilt>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 6 15 12 9 18"/></svg>
+        </button>
+      </div>
+    </section>
 
-      <section class="page page-changelog" data-index="5" data-url="drift://changelog">
-        <canvas id="timelineCanvas"></canvas>
-        <div class="page-inner">
-          <h2 class="section-title" data-i18n="changelog.title">更新日志</h2>
-          <p class="section-desc" data-i18n="changelog.desc">持续进化，越来越好</p>
-          <div class="timeline" id="timeline">
-            <div class="tl-item" data-delay="0">
-              <div class="tl-dot"></div>
-              <div class="tl-content">
-                <div class="tl-version">v2.33</div>
-                <div class="tl-date">2025-05</div>
-                <ul class="tl-list">
-                  <li data-i18n="changelog.v233.1">云盘系统全面重构，支持文件预览和全局搜索</li>
-                  <li data-i18n="changelog.v233.2">AI Agent 浏览器自动化操作</li>
-                  <li data-i18n="changelog.v233.3">插件系统 SDK 增强</li>
-                  <li data-i18n="changelog.v233.4">性能调节器优化，内存占用降低 30%</li>
-                </ul>
-              </div>
+    <section class="page page-download dark-page" data-index="5" data-url="drift://download">
+      <canvas id="downloadCanvas"></canvas>
+      <div class="page-inner download-inner">
+        <div class="download-hero-text">
+          <h2 class="download-title" data-i18n="download.title">获取 Drift</h2>
+          <p class="download-subtitle" data-i18n="download.desc">免费 · 开源 · 为 Windows 而生</p>
+        </div>
+        <div class="download-action">
+          <a href="https://github.com/151shi23/drift-browser/releases" class="download-btn hover-lift hover-glow" data-tilt data-i18n="download.btn">下载 Drift</a>
+        </div>
+        <div class="download-links">
+          <a href="https://github.com/151shi23/drift-browser/releases" class="dl-link hover-lift" data-i18n="download.installer">安装版</a>
+          <a href="https://github.com/151shi23/drift-browser/releases" class="dl-link hover-lift" data-i18n="download.portable">便携版</a>
+        </div>
+        <div class="download-meta">
+          <span>v2.33.0</span>
+          <span>Windows x64</span>
+          <span>MIT</span>
+          <span>Chromium 130</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="page page-changelog light-page" data-index="6" data-url="drift://changelog">
+      <div class="page-inner">
+        <h2 class="section-title" data-i18n="changelog.title">更新日志</h2>
+        <div class="changelog-list" id="changelogList">
+          <div class="changelog-item" data-version="2.33">
+            <div class="cl-version">
+              <span class="cl-num">2.33</span>
+              <span class="cl-date">2025-05</span>
             </div>
-            <div class="tl-item" data-delay="1">
-              <div class="tl-dot"></div>
-              <div class="tl-content">
-                <div class="tl-version">v2.30</div>
-                <div class="tl-date">2025-04</div>
-                <ul class="tl-list">
-                  <li data-i18n="changelog.v230.1">内置云盘功能上线</li>
-                  <li data-i18n="changelog.v230.2">DocForge 文档编辑器</li>
-                  <li data-i18n="changelog.v230.3">深色/浅色主题切换优化</li>
-                </ul>
-              </div>
+            <div class="cl-features">
+              <div class="cl-feature"><span class="cl-dot"></span><span data-i18n="changelog.v233.1">云盘系统全面重构</span></div>
+              <div class="cl-feature"><span class="cl-dot"></span><span data-i18n="changelog.v233.2">AI Agent 浏览器自动化</span></div>
+              <div class="cl-feature"><span class="cl-dot"></span><span data-i18n="changelog.v233.3">插件 SDK 增强</span></div>
+              <div class="cl-feature"><span class="cl-dot"></span><span data-i18n="changelog.v233.4">性能优化，内存降低 30%</span></div>
             </div>
-            <div class="tl-item" data-delay="2">
-              <div class="tl-dot"></div>
-              <div class="tl-content">
-                <div class="tl-version">v2.25</div>
-                <div class="tl-date">2025-03</div>
-                <ul class="tl-list">
-                  <li data-i18n="changelog.v225.1">AI Chat 多模型支持</li>
-                  <li data-i18n="changelog.v225.2">Chrome 扩展加载支持</li>
-                  <li data-i18n="changelog.v225.3">标签分组和分屏视图</li>
-                </ul>
-              </div>
+          </div>
+          <div class="changelog-item" data-version="2.30">
+            <div class="cl-version">
+              <span class="cl-num">2.30</span>
+              <span class="cl-date">2025-04</span>
             </div>
-            <div class="tl-item" data-delay="3">
-              <div class="tl-dot"></div>
-              <div class="tl-content">
-                <div class="tl-version">v2.20</div>
-                <div class="tl-date">2025-02</div>
-                <ul class="tl-list">
-                  <li data-i18n="changelog.v220.1">侧载插件系统上线</li>
-                  <li data-i18n="changelog.v220.2">广告拦截内置</li>
-                  <li data-i18n="changelog.v220.3">自动更新功能</li>
-                </ul>
-              </div>
+            <div class="cl-features">
+              <div class="cl-feature"><span class="cl-dot"></span><span data-i18n="changelog.v230.1">内置云盘功能上线</span></div>
+              <div class="cl-feature"><span class="cl-dot"></span><span data-i18n="changelog.v230.2">DocForge 文档编辑器</span></div>
+              <div class="cl-feature"><span class="cl-dot"></span><span data-i18n="changelog.v230.3">深色/浅色主题优化</span></div>
+            </div>
+          </div>
+          <div class="changelog-item" data-version="2.25">
+            <div class="cl-version">
+              <span class="cl-num">2.25</span>
+              <span class="cl-date">2025-03</span>
+            </div>
+            <div class="cl-features">
+              <div class="cl-feature"><span class="cl-dot"></span><span data-i18n="changelog.v225.1">AI Chat 多模型支持</span></div>
+              <div class="cl-feature"><span class="cl-dot"></span><span data-i18n="changelog.v225.2">Chrome 扩展加载</span></div>
+              <div class="cl-feature"><span class="cl-dot"></span><span data-i18n="changelog.v225.3">标签分组和分屏视图</span></div>
+            </div>
+          </div>
+          <div class="changelog-item" data-version="2.20">
+            <div class="cl-version">
+              <span class="cl-num">2.20</span>
+              <span class="cl-date">2025-02</span>
+            </div>
+            <div class="cl-features">
+              <div class="cl-feature"><span class="cl-dot"></span><span data-i18n="changelog.v220.1">侧载插件系统上线</span></div>
+              <div class="cl-feature"><span class="cl-dot"></span><span data-i18n="changelog.v220.2">广告拦截内置</span></div>
+              <div class="cl-feature"><span class="cl-dot"></span><span data-i18n="changelog.v220.3">自动更新功能</span></div>
             </div>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
 
-    </div>
-  </div>
+  </main>
 
-  <div id="contextMenu" class="ctx-menu hidden">
-    <button class="ctx-item" data-action="refresh">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+  <div id="contextMenu" class="ctx-menu hidden glass-frame" data-gloss>
+    <button class="ctx-item hover-lift" data-action="refresh">
       <span data-i18n="ctx.refresh">刷新</span>
     </button>
-    <button class="ctx-item" data-action="pin">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v8l4 4H8l4-4V2"/><circle cx="12" cy="18" r="3"/></svg>
+    <button class="ctx-item hover-lift" data-action="pin">
       <span data-i18n="ctx.pin">固定标签</span>
     </button>
-    <button class="ctx-item" data-action="close">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    <button class="ctx-item hover-lift" data-action="close">
       <span data-i18n="ctx.close">关闭标签</span>
     </button>
     <div class="ctx-sep"></div>
-    <button class="ctx-item" data-action="newtab">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+    <button class="ctx-item hover-lift" data-action="newtab">
       <span data-i18n="ctx.newtab">新标签打开</span>
     </button>
   </div>
 
-  <div id="pluginOverlay" class="plugin-overlay hidden">
-    <button class="po-back" id="poBack">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-      <span data-i18n="plugins.back">返回</span>
-    </button>
-    <div class="po-content" id="poContent"></div>
-  </div>
-
+  <div id="rippleEffect" class="ripple-effect"></div>
   <div id="transitionLayer"></div>
-
-  <footer id="footer">
-    <div class="footer-inner">
-      <span class="footer-logo">DRIFT</span>
-      <span class="footer-copy" data-i18n="footer.copy">© 2025 Drift Browser Team</span>
-      <div class="footer-links">
-        <a href="https://github.com/151shi23/drift-browser" target="_blank">GitHub</a>
-        <a href="https://github.com/151shi23/drift-browser/releases" target="_blank">Releases</a>
-        <a href="https://github.com/151shi23/drift-browser/blob/main/LICENSE" target="_blank">MIT</a>
-      </div>
-    </div>
-  </footer>
 
   <script src="audio.js"></script>
   <script src="app.js"></script>
