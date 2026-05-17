@@ -80,7 +80,11 @@
       'demo.ai.input': '试试输入问题...',
       'demo.plugin.item': '🌐 English i18n',
       'demo.plugin.item2': '🎨 个性化定制',
-      'demo.plugin.drop': '拖拽到此处安装'
+      'demo.plugin.drop': '拖拽到此处安装',
+      'footer.home': '首页',
+      'footer.features': '特性',
+      'footer.ai': 'AI',
+      'footer.download': '下载'
     },
     en: {
       'lang.toggle': '中文',
@@ -142,7 +146,11 @@
       'demo.ai.input': 'Try typing a question...',
       'demo.plugin.item': '🌐 English i18n',
       'demo.plugin.item2': '🎨 Customization',
-      'demo.plugin.drop': 'Drag here to install'
+      'demo.plugin.drop': 'Drag here to install',
+      'footer.home': 'Home',
+      'footer.features': 'Features',
+      'footer.ai': 'AI',
+      'footer.download': 'Download'
     }
   };
 

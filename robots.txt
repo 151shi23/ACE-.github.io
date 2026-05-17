@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Disallow: /audio.js
+
+Sitemap: https://drift-browser.com/sitemap.xml
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Googlebot
+Allow: /
